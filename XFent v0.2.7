@@ -1,3 +1,4 @@
+
 local Players=game:GetService("Players")
 local TweenService=game:GetService("TweenService")
 local RunService=game:GetService("RunService")
@@ -6,115 +7,59 @@ local SoundService=game:GetService("SoundService")
 local Camera=workspace.CurrentCamera
 local LocalPlayer=Players.LocalPlayer
 
-local introGui=Instance.new("ScreenGui"); introGui.Name="XFentIntro"; introGui.ResetOnSpawn=false; introGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; introGui.DisplayOrder=999; introGui.Enabled=true; introGui.Parent=LocalPlayer.PlayerGui
-local introBG=Instance.new("Frame"); introBG.Size=UDim2.new(1,0,1,0); introBG.BackgroundColor3=Color3.fromRGB(4,4,4); introBG.BackgroundTransparency=0; introBG.BorderSizePixel=0; introBG.ZIndex=1; introBG.Active=true; introBG.Parent=introGui
+local introGui=Instance.new("ScreenGui"); introGui.Name="XFentIntro"; introGui.ResetOnSpawn=false; introGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; introGui.DisplayOrder=999; introGui.Parent=LocalPlayer.PlayerGui
+local introBG=Instance.new("Frame"); introBG.Size=UDim2.new(1,0,1,0); introBG.BackgroundColor3=Color3.fromRGB(4,4,4); introBG.BackgroundTransparency=0; introBG.BorderSizePixel=0; introBG.ZIndex=100; introBG.Parent=introGui
 
-local GCOLS,GROWS=24,14
-local CELL_W=math.ceil(1920/GCOLS); local CELL_H=math.ceil(1080/GROWS)
-local gridCells={}
-for row=0,GROWS-1 do
-    for col=0,GCOLS-1 do
-        local cell=Instance.new("Frame"); cell.Size=UDim2.new(0,CELL_W+1,0,CELL_H+1); cell.Position=UDim2.new(0,col*CELL_W,0,row*CELL_H); cell.BackgroundColor3=Color3.fromRGB(8,8,8); cell.BackgroundTransparency=0; cell.BorderSizePixel=0; cell.ZIndex=2; cell.Parent=introBG
-        local cstroke=Instance.new("UIStroke"); cstroke.Color=Color3.fromRGB(22,22,22); cstroke.Thickness=1; cstroke.Parent=cell
-        table.insert(gridCells,{cell=cell,stroke=cstroke})
-    end
+local GCOLS,GROWS=16,9
+local gridLines={}
+for i=1,GCOLS do
+    local l=Instance.new("Frame"); l.Size=UDim2.new(0,1,0,0); l.Position=UDim2.new(i/GCOLS,0,0,0); l.BackgroundColor3=Color3.fromRGB(210,25,25); l.BackgroundTransparency=0.55; l.BorderSizePixel=0; l.ZIndex=101; l.Parent=introBG; table.insert(gridLines,{obj=l,h=false})
 end
-local function hoverCell(gc)
-    gc.cell.BackgroundColor3=Color3.fromRGB(210,25,25); gc.stroke.Color=Color3.fromRGB(255,60,60)
-    TweenService:Create(gc.cell,TweenInfo.new(1.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundColor3=Color3.fromRGB(8,8,8)}):Play()
-    TweenService:Create(gc.stroke,TweenInfo.new(1.4,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Color=Color3.fromRGB(22,22,22)}):Play()
+for i=1,GROWS do
+    local l=Instance.new("Frame"); l.Size=UDim2.new(0,0,0,1); l.Position=UDim2.new(0,0,i/GROWS,0); l.BackgroundColor3=Color3.fromRGB(210,25,25); l.BackgroundTransparency=0.55; l.BorderSizePixel=0; l.ZIndex=101; l.Parent=introBG; table.insert(gridLines,{obj=l,h=true})
 end
-introGui.MouseMoved:Connect(function(mx,my)
-    local col=math.floor(mx/CELL_W); local row=math.floor(my/CELL_H); local idx=row*GCOLS+col+1
-    if gridCells[idx] then hoverCell(gridCells[idx]) end
-end)
-
-local introCard=Instance.new("Frame"); introCard.Size=UDim2.new(0,820,0,460); introCard.Position=UDim2.new(0.5,-410,0.5,-230); introCard.BackgroundColor3=Color3.fromRGB(6,6,6); introCard.BackgroundTransparency=1; introCard.BorderSizePixel=0; introCard.ZIndex=10; introCard.Parent=introGui
-Instance.new("UICorner",introCard).CornerRadius=UDim.new(0,12)
-local introStroke=Instance.new("UIStroke"); introStroke.Color=Color3.fromRGB(210,25,25); introStroke.Thickness=1.5; introStroke.Transparency=0.4; introStroke.Parent=introCard
-Instance.new("Frame",introCard).Size=UDim2.new(1,0,0,3); introCard:FindFirstChildOfClass("Frame").BackgroundColor3=Color3.fromRGB(210,25,25); introCard:FindFirstChildOfClass("Frame").BorderSizePixel=0; introCard:FindFirstChildOfClass("Frame").ZIndex=11; Instance.new("UICorner",introCard:FindFirstChildOfClass("Frame")).CornerRadius=UDim.new(0,12)
-local introDivider=Instance.new("Frame"); introDivider.Size=UDim2.new(0,1,1,-24); introDivider.Position=UDim2.new(0,420,0,12); introDivider.BackgroundColor3=Color3.fromRGB(35,35,35); introDivider.BorderSizePixel=0; introDivider.ZIndex=11; introDivider.Parent=introCard
-local introLeft=Instance.new("Frame"); introLeft.Size=UDim2.new(0,418,1,-24); introLeft.Position=UDim2.new(0,0,0,12); introLeft.BackgroundTransparency=1; introLeft.BorderSizePixel=0; introLeft.ZIndex=11; introLeft.Parent=introCard
-local introRight=Instance.new("Frame"); introRight.Size=UDim2.new(0,398,1,-24); introRight.Position=UDim2.new(0,422,0,12); introRight.BackgroundTransparency=1; introRight.BorderSizePixel=0; introRight.ZIndex=11; introRight.Parent=introCard
-
-local function iLbl(parent,text,color,size,font,x,y,w,h,xa)
-    local l=Instance.new("TextLabel"); l.BackgroundTransparency=1; l.Text=text; l.TextColor3=color; l.TextSize=size; l.Font=font; l.Size=UDim2.new(0,w,0,h); l.Position=UDim2.new(0,x,0,y); l.TextXAlignment=xa or Enum.TextXAlignment.Left; l.ZIndex=12; l.TextTransparency=1; l.Parent=parent; return l
-end
-local gh=os.date("*t").hour
-local iTitle=iLbl(introLeft,"XFent",Color3.fromRGB(210,25,25),48,Enum.Font.GothamBold,20,18,390,60)
-local iSub=iLbl(introLeft,"v0.2.6  —  Built by kxzkx  •  Polished with AI",Color3.fromRGB(90,90,90),11,Enum.Font.GothamMedium,20,76,390,18)
-local iGreet=iLbl(introLeft,(gh>=5 and gh<12 and "Good morning" or gh>=12 and gh<17 and "Good afternoon" or "Good evening")..", "..LocalPlayer.DisplayName,Color3.fromRGB(120,120,120),12,Enum.Font.GothamMedium,20,100,390,16)
-local iSep1=Instance.new("Frame"); iSep1.Size=UDim2.new(1,-24,0,1); iSep1.Position=UDim2.new(0,12,0,128); iSep1.BackgroundColor3=Color3.fromRGB(28,28,28); iSep1.BorderSizePixel=0; iSep1.ZIndex=12; iSep1.Parent=introLeft
-iLbl(introLeft,"Join the server",Color3.fromRGB(75,75,75),10,Enum.Font.GothamBold,20,140,390,16)
-local iDscBtn=Instance.new("TextButton"); iDscBtn.Size=UDim2.new(1,-24,0,32); iDscBtn.Position=UDim2.new(0,12,0,158); iDscBtn.BackgroundColor3=Color3.fromRGB(14,14,14); iDscBtn.BorderSizePixel=0; iDscBtn.Text="discord.gg/WAJWzXt2MH"; iDscBtn.TextColor3=Color3.fromRGB(100,160,255); iDscBtn.TextSize=12; iDscBtn.Font=Enum.Font.GothamBold; iDscBtn.ZIndex=13; iDscBtn.AutoButtonColor=false; iDscBtn.TextTransparency=1; iDscBtn.Parent=introLeft
-Instance.new("UICorner",iDscBtn).CornerRadius=UDim.new(0,7); Instance.new("UIStroke",iDscBtn).Color=Color3.fromRGB(30,60,120)
-local iCopied=Instance.new("TextLabel"); iCopied.Size=UDim2.new(1,0,1,0); iCopied.BackgroundTransparency=1; iCopied.Text="✓  Copied!"; iCopied.TextColor3=Color3.fromRGB(100,220,100); iCopied.TextSize=12; iCopied.Font=Enum.Font.GothamBold; iCopied.ZIndex=14; iCopied.TextTransparency=1; iCopied.Parent=iDscBtn
-iDscBtn.MouseButton1Click:Connect(function()
-    pcall(function() setclipboard("discord.gg/WAJWzXt2MH") end)
-    TweenService:Create(iDscBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(10,36,10)}):Play()
-    TweenService:Create(iCopied,TweenInfo.new(0.2),{TextTransparency=0}):Play()
-    task.delay(1.8,function() TweenService:Create(iCopied,TweenInfo.new(0.3),{TextTransparency=1}):Play(); TweenService:Create(iDscBtn,TweenInfo.new(0.3),{BackgroundColor3=Color3.fromRGB(14,14,14)}):Play() end)
-end)
-local iSep2=Instance.new("Frame"); iSep2.Size=UDim2.new(1,-24,0,1); iSep2.Position=UDim2.new(0,12,0,202); iSep2.BackgroundColor3=Color3.fromRGB(28,28,28); iSep2.BorderSizePixel=0; iSep2.ZIndex=12; iSep2.Parent=introLeft
-local iFeat={"Full Player + NPC ESP","Rotating minimap with markers","Aimbot with NPC lock-on","8-slot teammate HUD","System bar + low health popup"}
-for fi,ft in ipairs(iFeat) do iLbl(introLeft,"•  "..ft,Color3.fromRGB(80,80,80),11,Enum.Font.GothamMedium,20,206+fi*18,390,15) end
-local iEnterBtn=Instance.new("TextButton"); iEnterBtn.Size=UDim2.new(1,-24,0,36); iEnterBtn.Position=UDim2.new(0,12,1,-52); iEnterBtn.BackgroundColor3=Color3.fromRGB(210,25,25); iEnterBtn.BorderSizePixel=0; iEnterBtn.Text="Enter  →"; iEnterBtn.TextColor3=Color3.fromRGB(255,255,255); iEnterBtn.TextSize=13; iEnterBtn.Font=Enum.Font.GothamBold; iEnterBtn.ZIndex=13; iEnterBtn.AutoButtonColor=false; iEnterBtn.TextTransparency=1; iEnterBtn.Parent=introLeft
-Instance.new("UICorner",iEnterBtn).CornerRadius=UDim.new(0,8)
-iEnterBtn.MouseEnter:Connect(function() TweenService:Create(iEnterBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(255,50,50)}):Play() end)
-iEnterBtn.MouseLeave:Connect(function() TweenService:Create(iEnterBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(210,25,25)}):Play() end)
-
-iLbl(introRight,"Current Version",Color3.fromRGB(210,25,25),11,Enum.Font.GothamBold,8,10,380,16)
-local iVerBG=Instance.new("Frame"); iVerBG.Size=UDim2.new(1,-12,0,34); iVerBG.Position=UDim2.new(0,8,0,28); iVerBG.BackgroundColor3=Color3.fromRGB(12,5,5); iVerBG.BackgroundTransparency=0.2; iVerBG.BorderSizePixel=0; iVerBG.ZIndex=12; iVerBG.Parent=introRight; Instance.new("UICorner",iVerBG).CornerRadius=UDim.new(0,8)
-local iVerNum=Instance.new("TextLabel"); iVerNum.Size=UDim2.new(1,-12,1,0); iVerNum.Position=UDim2.new(0,12,0,0); iVerNum.BackgroundTransparency=1; iVerNum.Text="v0.2.6"; iVerNum.TextColor3=Color3.fromRGB(255,255,255); iVerNum.TextSize=22; iVerNum.Font=Enum.Font.GothamBold; iVerNum.TextXAlignment=Enum.TextXAlignment.Left; iVerNum.ZIndex=13; iVerNum.TextTransparency=1; iVerNum.Parent=iVerBG
-iLbl(introRight,"What's New",Color3.fromRGB(75,75,75),10,Enum.Font.GothamBold,8,72,380,14)
-local iWN={"NPC Charms (name, HP, distance)","NPC Aimbot lock-on","8-slot pinnable teammates","Interactive hover grid intro","Map markers for exits/quests/death","N|180 direction text below map","Team ESP independent of ESP tab"}
-for wi,wt in ipairs(iWN) do iLbl(introRight,"+ "..wt,Color3.fromRGB(62,62,62),10,Enum.Font.GothamMedium,8,86+wi*16,380,14) end
-iLbl(introRight,"Version History",Color3.fromRGB(48,48,48),9,Enum.Font.GothamBold,8,240,380,12)
-local iLS=Instance.new("Frame"); iLS.Size=UDim2.new(1,-12,0,1); iLS.Position=UDim2.new(0,8,0,254); iLS.BackgroundColor3=Color3.fromRGB(20,20,20); iLS.BorderSizePixel=0; iLS.ZIndex=12; iLS.Parent=introRight
-local iCL={{"v0.2.6","NPC ESP, 8 teammates, new intro, map markers"},{"v0.2.5","Map compass, exits fixed, teammate death hide"},{"v0.2.4","Viewport front-face, damage 1s, popup sync"}}
-for ci,cl in ipairs(iCL) do
-    iLbl(introRight,cl[1],ci==1 and Color3.fromRGB(210,25,25) or Color3.fromRGB(46,46,46),10,Enum.Font.GothamBold,8,258+ci*26,380,12)
-    iLbl(introRight,cl[2],Color3.fromRGB(40,40,40),9,Enum.Font.GothamMedium,8,272+ci*26,380,11)
-end
+local cardFrame=Instance.new("Frame"); cardFrame.Size=UDim2.new(0,300,0,110); cardFrame.Position=UDim2.new(0.5,-150,0.5,-55); cardFrame.BackgroundColor3=Color3.fromRGB(8,8,8); cardFrame.BackgroundTransparency=0.15; cardFrame.BorderSizePixel=0; cardFrame.ZIndex=102; cardFrame.Visible=false; cardFrame.Parent=introBG
+Instance.new("UICorner",cardFrame).CornerRadius=UDim.new(0,10)
+local cardStroke=Instance.new("UIStroke"); cardStroke.Color=Color3.fromRGB(210,25,25); cardStroke.Thickness=1.4; cardStroke.Transparency=1; cardStroke.Parent=cardFrame
+local cardTop=Instance.new("Frame"); cardTop.Size=UDim2.new(1,0,0,3); cardTop.BackgroundColor3=Color3.fromRGB(210,25,25); cardTop.BorderSizePixel=0; cardTop.ZIndex=103; cardTop.Parent=cardFrame; Instance.new("UICorner",cardTop).CornerRadius=UDim.new(0,10)
+local cardTitle=Instance.new("TextLabel"); cardTitle.Size=UDim2.new(1,0,0,46); cardTitle.Position=UDim2.new(0,0,0,12); cardTitle.BackgroundTransparency=1; cardTitle.Text="XFent"; cardTitle.TextColor3=Color3.fromRGB(210,25,25); cardTitle.TextTransparency=1; cardTitle.TextSize=30; cardTitle.Font=Enum.Font.GothamBold; cardTitle.TextXAlignment=Enum.TextXAlignment.Center; cardTitle.ZIndex=103; cardTitle.Parent=cardFrame
+local cardVer=Instance.new("TextLabel"); cardVer.Size=UDim2.new(1,0,0,22); cardVer.Position=UDim2.new(0,0,0,56); cardVer.BackgroundTransparency=1; cardVer.Text="v0.2.5"; cardVer.TextColor3=Color3.fromRGB(130,130,130); cardVer.TextTransparency=1; cardVer.TextSize=13; cardVer.Font=Enum.Font.GothamMedium; cardVer.TextXAlignment=Enum.TextXAlignment.Center; cardVer.ZIndex=103; cardVer.Parent=cardFrame
+local cardMade=Instance.new("TextLabel"); cardMade.Size=UDim2.new(1,0,0,18); cardMade.Position=UDim2.new(0,0,0,80); cardMade.BackgroundTransparency=1; cardMade.Text="Made by: kxzkx"; cardMade.TextColor3=Color3.fromRGB(80,80,80); cardMade.TextTransparency=1; cardMade.TextSize=11; cardMade.Font=Enum.Font.GothamMedium; cardMade.TextXAlignment=Enum.TextXAlignment.Center; cardMade.ZIndex=103; cardMade.Parent=cardFrame
 
 local mainGui,radarGui,hudGui,sysGui,popupGui
 
-local introOpen=true
-local function doEnter()
-    if not introOpen then return end; introOpen=false
-    TweenService:Create(introCard,TweenInfo.new(0.5,Enum.EasingStyle.Quint,Enum.EasingDirection.In),{BackgroundTransparency=1}):Play()
-    TweenService:Create(introStroke,TweenInfo.new(0.3),{Transparency=1}):Play()
-    for _,gc in ipairs(gridCells) do
-        TweenService:Create(gc.cell,TweenInfo.new(0.4),{BackgroundTransparency=1}):Play()
-        TweenService:Create(gc.stroke,TweenInfo.new(0.4),{Transparency=1}):Play()
-    end
-    TweenService:Create(introBG,TweenInfo.new(0.55),{BackgroundTransparency=1}):Play()
-    task.delay(0.6,function()
-        introGui:Destroy()
-        if mainGui then mainGui.Enabled=true end
-        if radarGui then radarGui.Enabled=true end
-        if hudGui then hudGui.Enabled=true end
-        if sysGui then sysGui.Enabled=true end
-        if popupGui then popupGui.Enabled=true end
-    end)
-end
-iEnterBtn.MouseButton1Click:Connect(doEnter)
+local menuOpenSound=Instance.new("Sound"); menuOpenSound.SoundId="rbxassetid://6518811702"; menuOpenSound.Volume=0.4; menuOpenSound.Parent=SoundService
+local heartbeatSound=Instance.new("Sound"); heartbeatSound.SoundId="rbxassetid://185958167"; heartbeatSound.Volume=0; heartbeatSound.Looped=true; heartbeatSound.Parent=SoundService
+local popupSound=Instance.new("Sound"); popupSound.SoundId="rbxassetid://4590662766"; popupSound.Volume=0.6; popupSound.Parent=SoundService
+heartbeatSound:Play()
 
 task.spawn(function()
-    task.wait(0.05)
-    TweenService:Create(introCard,TweenInfo.new(0.45,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundTransparency=0}):Play()
     task.wait(0.1)
-    for _,desc in ipairs(introLeft:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.TextTransparency>=0.9 then
-            task.wait(0.03); TweenService:Create(desc,TweenInfo.new(0.4),{TextTransparency=0}):Play()
-        end
+
+    for _,g in ipairs(gridLines) do
+        if g.h then TweenService:Create(g.obj,TweenInfo.new(0.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=UDim2.new(1,0,0,1)}):Play()
+        else TweenService:Create(g.obj,TweenInfo.new(0.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=UDim2.new(0,1,1,0)}):Play() end
+        task.wait(0.008)
     end
-    task.wait(0.04)
-    for _,desc in ipairs(introRight:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.TextTransparency>=0.9 then
-            task.wait(0.025); TweenService:Create(desc,TweenInfo.new(0.35),{TextTransparency=0}):Play()
-        end
-    end
+    task.wait(0.3)
+    cardFrame.Visible=true
+    TweenService:Create(cardStroke,TweenInfo.new(0.3),{Transparency=0.3}):Play()
+    TweenService:Create(cardTitle,TweenInfo.new(0.4),{TextTransparency=0}):Play(); task.wait(0.2)
+    TweenService:Create(cardVer,TweenInfo.new(0.4),{TextTransparency=0}):Play(); task.wait(0.15)
+    TweenService:Create(cardMade,TweenInfo.new(0.4),{TextTransparency=0}):Play(); task.wait(1.8)
+    TweenService:Create(cardTitle,TweenInfo.new(0.35),{TextTransparency=1}):Play()
+    TweenService:Create(cardVer,TweenInfo.new(0.35),{TextTransparency=1}):Play()
+    TweenService:Create(cardMade,TweenInfo.new(0.35),{TextTransparency=1}):Play()
+    TweenService:Create(cardStroke,TweenInfo.new(0.35),{Transparency=1}):Play(); task.wait(0.38)
+    cardFrame.Visible=false
+    for _,g in ipairs(gridLines) do TweenService:Create(g.obj,TweenInfo.new(0.35),{BackgroundTransparency=1}):Play() end
+    TweenService:Create(introBG,TweenInfo.new(0.5),{BackgroundTransparency=1}):Play(); task.wait(0.52)
+    introGui:Destroy()
+    if mainGui then mainGui.Enabled=true end
+    if radarGui then radarGui.Enabled=true end
+    if hudGui then hudGui.Enabled=true end
+    if sysGui then sysGui.Enabled=true end
+    if popupGui then popupGui.Enabled=true end
 end)
 
 local Cfg={
@@ -124,19 +69,18 @@ local Cfg={
     MaxDistance=1000,TextSize=13,RefreshRate=60,
     Skeleton=false,SkeletonColor=Color3.fromRGB(255,255,255),SkeletonThick=1,
     Chams=false,ChamsFill=Color3.fromRGB(255,0,0),ChamsOutline=Color3.fromRGB(255,255,255),ChamsFillTrans=0.5,ChamsOutTrans=0,
-    Rainbow=false,RainbowSpeed=1,TeamCheck=false,TeamColor=Color3.fromRGB(50,255,50),TeamESP=false,
+    Rainbow=false,RainbowSpeed=1,TeamCheck=false,TeamColor=Color3.fromRGB(50,255,50),
     Radar=false,RadarRange=100,RadarSize=160,RadarDotSize=5,RadarRotate=true,
     ShowHUD=true,ShowSysBar=true,Popups=true,
     ShowExits=false,ShowDeathMark=false,ShowQuestItems=false,
     AimbotEnabled=false,AimbotMouse=true,AimbotKey=nil,AimbotTraceLine=false,
-    AimbotPart="Head",AimbotFOV=120,AimbotSmooth=10,AimbotFOVCircle=false,AimbotNPC=false,
-    NPCEnabled=false,NPCName=true,NPCHealth=true,NPCDistance=true,NPCMaxDist=300,
+    AimbotPart="Head",AimbotFOV=120,AimbotSmooth=10,AimbotFOVCircle=false,
     Hotkeys={ToggleMenu=Enum.KeyCode.RightShift},
 }
 
 local PARTS_CYCLE={"Head","UpperTorso","LowerTorso","RightUpperArm","LeftUpperArm","RightUpperLeg","LeftUpperLeg"}
 local partIndex=1
-local MAX_TEAMMATES=8
+local MAX_TEAMMATES=4
 
 local ESPObjects={}
 local RainbowColor=Color3.fromRGB(255,50,50)
@@ -192,23 +136,7 @@ local function getTarget()
             local hum=p.Character:FindFirstChildOfClass("Humanoid")
             if part and hum and hum.Health>0 then
                 local sp,on=Camera:WorldToViewportPoint(part.Position)
-                if on and sp.Z>0 then local d=(Vector2.new(sp.X,sp.Y)-ctr).Magnitude; if d<bestD then bestD=d; best={type="player",obj=p} end end
-            end
-        end
-    end
-    if Cfg.AimbotNPC then
-        for _,obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Humanoid") and obj.Health>0 then
-                local nchar=obj.Parent; local isPlayer=false
-                for _,pp in ipairs(Players:GetPlayers()) do if pp.Character==nchar then isPlayer=true; break end end
-                if not isPlayer then
-                    local root=nchar:FindFirstChild("HumanoidRootPart")
-                    local part=nchar:FindFirstChild(Cfg.AimbotPart) or root
-                    if part then
-                        local sp,on=Camera:WorldToViewportPoint(part.Position)
-                        if on and sp.Z>0 then local d=(Vector2.new(sp.X,sp.Y)-ctr).Magnitude; if d<bestD then bestD=d; best={type="npc",obj=nchar,part=part} end end
-                    end
-                end
+                if on and sp.Z>0 then local d=(Vector2.new(sp.X,sp.Y)-ctr).Magnitude; if d<bestD then bestD=d; best=p end end
             end
         end
     end
@@ -309,7 +237,7 @@ local function updateESP(player)
     local _,onScreen,depth=toScreen(root.Position); if not onScreen or depth<0 then hideAll(obj); return end
     local dist=(root.Position-Camera.CFrame.Position).Magnitude; if dist>Cfg.MaxDistance then hideAll(obj); return end
     local hum=char:FindFirstChildOfClass("Humanoid"); if not hum or hum.Health<=0 then hideAll(obj); return end
-    if Cfg.TeamCheck and not Cfg.TeamESP and player.Team==LocalPlayer.Team then hideAll(obj); return end
+    if Cfg.TeamCheck and player.Team==LocalPlayer.Team then hideAll(obj); return end
     local color=getColor(player); local extents=char:GetExtentsSize(); local cf=root.CFrame
     local topSP,topVis=toScreen((cf*CFrame.new(0,extents.Y/2,0)).Position); local bottomSP,bottomVis=toScreen((cf*CFrame.new(0,-extents.Y/2,0)).Position)
     if not(topVis and bottomVis) then hideAll(obj); return end
@@ -410,11 +338,9 @@ local function updateWorldESP()
 
     if aimTraceLine then aimTraceLine.Visible=false end
     if Cfg.AimbotEnabled and Cfg.AimbotTraceLine then
-        local tgt=getTarget()
-        if tgt then
-            local part=nil
-            if tgt.type=="player" and tgt.obj.Character then part=tgt.obj.Character:FindFirstChild(Cfg.AimbotPart) or tgt.obj.Character:FindFirstChild("HumanoidRootPart")
-            elseif tgt.type=="npc" then part=tgt.part end
+        local target=getTarget()
+        if target and target.Character then
+            local part=target.Character:FindFirstChild(Cfg.AimbotPart) or target.Character:FindFirstChild("HumanoidRootPart")
             if part then
                 if not aimTraceLine then aimTraceLine=Drawing.new("Line"); aimTraceLine.Thickness=1; aimTraceLine.ZIndex=9 end
                 local vp=Camera.ViewportSize; local sp,on,dep=toScreen(part.Position)
@@ -601,22 +527,7 @@ makeToggleWithSub(pageESP,"Tracer","Tracer",Color3.fromRGB(180,50,50),function(s
         btn.MouseButton1Click:Connect(function() Cfg.TracerOrigin=v; for _,c in ipairs(sub:GetChildren()) do if c:IsA("TextButton") then c.TextColor3=Cfg.TracerOrigin==c.Text and Color3.fromRGB(220,50,50) or Color3.fromRGB(140,140,140); c.Font=Cfg.TracerOrigin==c.Text and Enum.Font.GothamBold or Enum.Font.GothamMedium end end end)
     end
 end)
-makeSec(pageESP,"  Advanced"); makeToggle(pageESP,"Skeleton","Skeleton",Color3.fromRGB(220,180,40)); makeToggle(pageESP,"Chams","Chams",Color3.fromRGB(160,40,220)); makeToggle(pageESP,"Rainbow","Rainbow",Color3.fromRGB(220,80,180))
-makeSec(pageESP,"  Team")
-makeToggle(pageESP,"Team Check","TeamCheck",Color3.fromRGB(40,180,90))
-makeToggle(pageESP,"Show Team ESP","TeamESP",Color3.fromRGB(100,200,255))
-makeSec(pageESP,"  NPC Charms")
-local NPC_C=Color3.fromRGB(80,200,255)
-makeToggleWithSub(pageESP,"NPC ESP","NPCEnabled",NPC_C,function(nsub)
-    local function nst(lb,ky,ac)
-        local rb=Instance.new("TextButton"); rb.Size=UDim2.new(1,0,0,24); rb.BackgroundColor3=Color3.fromRGB(14,14,14); rb.BackgroundTransparency=0.2; rb.BorderSizePixel=0; rb.Text=""; rb.AutoButtonColor=false; rb.ZIndex=5; rb.Parent=nsub; Instance.new("UICorner",rb).CornerRadius=UDim.new(0,5)
-        local rl=Instance.new("TextLabel"); rl.Size=UDim2.new(1,-46,1,0); rl.Position=UDim2.new(0,8,0,0); rl.BackgroundTransparency=1; rl.Text=lb; rl.TextSize=10; rl.Font=Enum.Font.GothamMedium; rl.TextXAlignment=Enum.TextXAlignment.Left; rl.ZIndex=6; rl.Parent=rb
-        local rp=Instance.new("TextLabel"); rp.Size=UDim2.new(0,28,0,13); rp.Position=UDim2.new(1,-32,0.5,-6); rp.BorderSizePixel=0; rp.TextSize=7; rp.Font=Enum.Font.GothamBold; rp.TextXAlignment=Enum.TextXAlignment.Center; rp.ZIndex=7; rp.Parent=rb; Instance.new("UICorner",rp).CornerRadius=UDim.new(0.5,0)
-        local function rr() local on=Cfg[ky]; rl.TextColor3=on and Color3.fromRGB(220,220,220) or Color3.fromRGB(70,70,70); rp.Text=on and "ON" or "OFF"; rp.TextColor3=on and Color3.fromRGB(255,255,255) or Color3.fromRGB(70,70,70); rp.BackgroundColor3=on and (ac or NPC_C) or Color3.fromRGB(20,20,20) end; rr(); rb.MouseButton1Click:Connect(function() Cfg[ky]=not Cfg[ky]; rr() end)
-    end
-    nst("Show Name","NPCName",NPC_C); nst("Show Health","NPCHealth",Color3.fromRGB(80,255,80)); nst("Show Distance","NPCDistance",Color3.fromRGB(200,200,200))
-end)
-makeSlider(pageESP,"NPC Max Distance",50,2000,300,function(v) Cfg.NPCMaxDist=v end)
+makeSec(pageESP,"  Advanced"); makeToggle(pageESP,"Skeleton","Skeleton",Color3.fromRGB(220,180,40)); makeToggle(pageESP,"Chams","Chams",Color3.fromRGB(160,40,220)); makeToggle(pageESP,"Rainbow","Rainbow",Color3.fromRGB(220,80,180)); makeToggle(pageESP,"Team Check","TeamCheck",Color3.fromRGB(40,180,90))
 makeSec(pageESP,"  Radar")
 makeToggleWithSub(pageESP,"Radar","Radar",Color3.fromRGB(50,200,200),function(sub)
     local function st(lbl2,key,ac) local btn=Instance.new("TextButton"); btn.Size=UDim2.new(1,0,0,24); btn.BackgroundColor3=Color3.fromRGB(14,14,14); btn.BackgroundTransparency=0.2; btn.BorderSizePixel=0; btn.Text=""; btn.AutoButtonColor=false; btn.ZIndex=5; btn.Parent=sub; Instance.new("UICorner",btn).CornerRadius=UDim.new(0,5); local l2=Instance.new("TextLabel"); l2.Size=UDim2.new(1,-46,1,0); l2.Position=UDim2.new(0,8,0,0); l2.BackgroundTransparency=1; l2.Text=lbl2; l2.TextSize=10; l2.Font=Enum.Font.GothamMedium; l2.TextXAlignment=Enum.TextXAlignment.Left; l2.ZIndex=6; l2.Parent=btn; local p2=Instance.new("TextLabel"); p2.Size=UDim2.new(0,28,0,13); p2.Position=UDim2.new(1,-32,0.5,-6); p2.BorderSizePixel=0; p2.TextSize=7; p2.Font=Enum.Font.GothamBold; p2.TextXAlignment=Enum.TextXAlignment.Center; p2.ZIndex=7; p2.Parent=btn; Instance.new("UICorner",p2).CornerRadius=UDim.new(0.5,0); local function ref() local on=Cfg[key]; l2.TextColor3=on and Color3.fromRGB(220,220,220) or Color3.fromRGB(70,70,70); p2.Text=on and "ON" or "OFF"; p2.TextColor3=on and Color3.fromRGB(255,255,255) or Color3.fromRGB(70,70,70); p2.BackgroundColor3=on and (ac or Color3.fromRGB(50,200,200)) or Color3.fromRGB(20,20,20) end; ref(); btn.MouseButton1Click:Connect(function() Cfg[key]=not Cfg[key]; ref() end) end
@@ -704,7 +615,6 @@ makeSec(pageAimbot,"  Target Part")
 local partCycleBtn=Instance.new("TextButton"); partCycleBtn.Size=UDim2.new(1,0,0,28); partCycleBtn.BackgroundColor3=DARKRED; partCycleBtn.BackgroundTransparency=0.2; partCycleBtn.BorderSizePixel=0; partCycleBtn.Text=Cfg.AimbotPart; partCycleBtn.TextColor3=Color3.fromRGB(220,220,220); partCycleBtn.TextSize=11; partCycleBtn.Font=Enum.Font.GothamBold; partCycleBtn.ZIndex=3; partCycleBtn.AutoButtonColor=false; partCycleBtn.Parent=pageAimbot; Instance.new("UICorner",partCycleBtn).CornerRadius=UDim.new(0,6)
 partCycleBtn.MouseButton1Click:Connect(function() partIndex=partIndex%#PARTS_CYCLE+1; Cfg.AimbotPart=PARTS_CYCLE[partIndex]; partCycleBtn.Text=Cfg.AimbotPart end)
 makeSec(pageAimbot,"  Settings"); makeSlider(pageAimbot,"FOV",20,400,120,function(v) Cfg.AimbotFOV=v end); makeSlider(pageAimbot,"Smooth",1,10,10,function(v) Cfg.AimbotSmooth=v end); makeToggle(pageAimbot,"FOV Circle","AimbotFOVCircle",Color3.fromRGB(255,100,100)); makeToggle(pageAimbot,"Trace Line","AimbotTraceLine",Color3.fromRGB(255,100,100))
-makeSec(pageAimbot,"  NPC Lock"); makeToggle(pageAimbot,"Lock onto NPCs","AimbotNPC",Color3.fromRGB(80,200,255))
 
 makeSec(pageSet,"  Performance"); makeSlider(pageSet,"Refresh Rate",10,144,60,function(v) Cfg.RefreshRate=v end)
 makeSec(pageSet,"  Color")
@@ -742,7 +652,7 @@ toggleBtn.MouseButton1Click:Connect(function() if isOpen then close() else open(
 
 radarGui=Instance.new("ScreenGui"); radarGui.Name="XFentRadar"; radarGui.ResetOnSpawn=false; radarGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; radarGui.DisplayOrder=9; radarGui.Enabled=false; radarGui.Parent=LocalPlayer.PlayerGui
 local RS=Cfg.RadarSize
-local radarOuter=Instance.new("Frame"); radarOuter.Size=UDim2.new(0,RS,0,RS); radarOuter.Position=UDim2.new(0,8,0,8); radarOuter.BackgroundColor3=Color3.fromRGB(5,5,5); radarOuter.BackgroundTransparency=0.4; radarOuter.BorderSizePixel=0; radarOuter.Visible=false; radarOuter.Parent=radarGui; Instance.new("UICorner",radarOuter).CornerRadius=UDim.new(0.5,0)
+local radarOuter=Instance.new("Frame"); radarOuter.Size=UDim2.new(0,RS,0,RS); radarOuter.Position=UDim2.new(1,-RS-16,1,-RS-16); radarOuter.BackgroundColor3=Color3.fromRGB(5,5,5); radarOuter.BackgroundTransparency=0.4; radarOuter.BorderSizePixel=0; radarOuter.Visible=false; radarOuter.Parent=radarGui; Instance.new("UICorner",radarOuter).CornerRadius=UDim.new(0.5,0)
 local radarStroke=Instance.new("UIStroke"); radarStroke.Color=RED; radarStroke.Thickness=1.2; radarStroke.Parent=radarOuter; table.insert(colorTargets,{obj=radarStroke,prop="Color"})
 local radarMask=Instance.new("Frame"); radarMask.Size=UDim2.new(1,-4,1,-4); radarMask.Position=UDim2.new(0,2,0,2); radarMask.BackgroundTransparency=1; radarMask.BorderSizePixel=0; radarMask.ClipsDescendants=true; radarMask.ZIndex=2; radarMask.Parent=radarOuter; Instance.new("UICorner",radarMask).CornerRadius=UDim.new(0.5,0)
 local radarCenter=Instance.new("Frame"); radarCenter.Size=UDim2.new(0,6,0,6); radarCenter.Position=UDim2.new(0.5,-3,0.5,-3); radarCenter.BackgroundColor3=Color3.fromRGB(255,255,255); radarCenter.BorderSizePixel=0; radarCenter.ZIndex=4; radarCenter.Parent=radarMask; Instance.new("UICorner",radarCenter).CornerRadius=UDim.new(0.5,0)
@@ -823,7 +733,7 @@ task.spawn(function()
                 cr.Anchored=true
                 cr.CFrame=CFrame.new(0,0,0)
 
-                vpCam.CFrame=CFrame.new(Vector3.new(0,0.8,-9),Vector3.new(0,0.8,0))
+                vpCam.CFrame=CFrame.new(Vector3.new(0,1.2,-9),Vector3.new(0,1.2,0))
             end
 
             RunService.Heartbeat:Connect(function()
@@ -946,39 +856,6 @@ local fpsBuffer={}; local FPS=0; local lastSysUpdate=0; local lastHUDUpdate=0; l
 
 task.spawn(function() while not Unloaded do task.wait(0.05); RainbowColor=Color3.fromHSV(tick()*Cfg.RainbowSpeed%1,1,1); stroke.Color=Cfg.Rainbow and RainbowColor or RED end end)
 
-
-local npcLabels={}
-local function updateNPCESP()
-    for _,v in pairs(npcLabels) do pcall(function() v.name.Visible=false; v.hp.Visible=false; v.dist.Visible=false end) end
-    if not Cfg.NPCEnabled then return end
-    local lr=LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    local idx=0
-    for _,obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Humanoid") and obj.Health>0 and obj.MaxHealth>0 then
-            local nchar=obj.Parent; local isPlayer=false
-            for _,pp in ipairs(Players:GetPlayers()) do if pp.Character==nchar then isPlayer=true; break end end
-            if not isPlayer then
-                local root=nchar:FindFirstChild("HumanoidRootPart")
-                if root then
-                    local dist=lr and (root.Position-lr.Position).Magnitude or 0
-                    if dist<=Cfg.NPCMaxDist then
-                        local sp,on,dep=toScreen(root.Position+Vector3.new(0,2,0))
-                        if on and dep>0 then
-                            idx=idx+1
-                            if not npcLabels[idx] then
-                                npcLabels[idx]={name=newText(12,Color3.fromRGB(80,200,255)),hp=newText(11,Color3.fromRGB(80,255,80)),dist=newText(10,Color3.fromRGB(160,160,160))}
-                            end
-                            local nl=npcLabels[idx]
-                            if Cfg.NPCName then nl.name.Text=nchar.Name; nl.name.Position=sp-Vector2.new(0,16); nl.name.Visible=true end
-                            if Cfg.NPCHealth then local pct=math.clamp(obj.Health/obj.MaxHealth,0,1); nl.hp.Text=string.format("HP %.0f%%",pct*100); nl.hp.Position=sp; nl.hp.Color=Color3.fromRGB(math.floor(255*(1-pct)),math.floor(255*pct),50); nl.hp.Visible=true end
-                            if Cfg.NPCDistance then nl.dist.Text=string.format("%.0f st",dist); nl.dist.Position=sp+Vector2.new(0,14); nl.dist.Visible=true end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
 RunService.RenderStepped:Connect(function(dt)
     if Unloaded then return end
     local now=tick()
@@ -991,7 +868,6 @@ RunService.RenderStepped:Connect(function(dt)
         if not Cfg.Enabled then for _,p in ipairs(Players:GetPlayers()) do hideAll(ESPObjects[p]) end
         else for _,p in ipairs(Players:GetPlayers()) do if p~=LocalPlayer then if not ESPObjects[p] then createESP(p) end; updateESP(p) end end end
         updateRadar()
-        updateNPCESP()
     end
 
     updateWorldESP()
@@ -1001,15 +877,7 @@ RunService.RenderStepped:Connect(function(dt)
 
     if Cfg.AimbotEnabled then
         local isHeld=(Cfg.AimbotMouse and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)) or (Cfg.AimbotKey and UserInputService:IsKeyDown(Cfg.AimbotKey)) or false
-        if isHeld then
-            local tgt=getTarget()
-            if tgt then
-                local part=nil
-                if tgt.type=="player" and tgt.obj.Character then part=tgt.obj.Character:FindFirstChild(Cfg.AimbotPart) or tgt.obj.Character:FindFirstChild("HumanoidRootPart")
-                elseif tgt.type=="npc" then part=tgt.part end
-                if part then local sf=math.clamp(Cfg.AimbotSmooth/10,0.05,1); Camera.CFrame=Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position,part.Position),sf) end
-            end
-        end
+        if isHeld then local target=getTarget(); if target and target.Character then local part=target.Character:FindFirstChild(Cfg.AimbotPart) or target.Character:FindFirstChild("HumanoidRootPart"); if part then local sf=math.clamp(Cfg.AimbotSmooth/10,0.05,1); Camera.CFrame=Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position,part.Position),sf) end end end
     end
 
     local char=LocalPlayer.Character; local hum=char and char:FindFirstChildOfClass("Humanoid")
