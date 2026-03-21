@@ -1,4 +1,6 @@
-
+-- ============================================================
+-- SERVICES & GLOBALS
+-- ============================================================
 local Players=game:GetService("Players")
 local TweenService=game:GetService("TweenService")
 local RunService=game:GetService("RunService")
@@ -10,6 +12,10 @@ local LocalPlayer=Players.LocalPlayer
 local introGui=Instance.new("ScreenGui"); introGui.Name="XFentIntro"; introGui.ResetOnSpawn=false; introGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; introGui.DisplayOrder=999; introGui.Parent=LocalPlayer.PlayerGui
 local introBG=Instance.new("Frame"); introBG.Size=UDim2.new(1,0,1,0); introBG.BackgroundColor3=Color3.fromRGB(4,4,4); introBG.BackgroundTransparency=0; introBG.BorderSizePixel=0; introBG.ZIndex=100; introBG.Parent=introGui
 
+
+-- ============================================================
+-- INTRO GRID ANIMATION
+-- ============================================================
 local GCOLS,GROWS=16,9
 local gridLines={}
 for i=1,GCOLS do
@@ -23,11 +29,19 @@ Instance.new("UICorner",cardFrame).CornerRadius=UDim.new(0,10)
 local cardStroke=Instance.new("UIStroke"); cardStroke.Color=Color3.fromRGB(210,25,25); cardStroke.Thickness=1.4; cardStroke.Transparency=1; cardStroke.Parent=cardFrame
 local cardTop=Instance.new("Frame"); cardTop.Size=UDim2.new(1,0,0,3); cardTop.BackgroundColor3=Color3.fromRGB(210,25,25); cardTop.BorderSizePixel=0; cardTop.ZIndex=103; cardTop.Parent=cardFrame; Instance.new("UICorner",cardTop).CornerRadius=UDim.new(0,10)
 local cardTitle=Instance.new("TextLabel"); cardTitle.Size=UDim2.new(1,0,0,46); cardTitle.Position=UDim2.new(0,0,0,12); cardTitle.BackgroundTransparency=1; cardTitle.Text="XFent"; cardTitle.TextColor3=Color3.fromRGB(210,25,25); cardTitle.TextTransparency=1; cardTitle.TextSize=30; cardTitle.Font=Enum.Font.GothamBold; cardTitle.TextXAlignment=Enum.TextXAlignment.Center; cardTitle.ZIndex=103; cardTitle.Parent=cardFrame
-local cardVer=Instance.new("TextLabel"); cardVer.Size=UDim2.new(1,0,0,22); cardVer.Position=UDim2.new(0,0,0,56); cardVer.BackgroundTransparency=1; cardVer.Text="v0.2.5"; cardVer.TextColor3=Color3.fromRGB(130,130,130); cardVer.TextTransparency=1; cardVer.TextSize=13; cardVer.Font=Enum.Font.GothamMedium; cardVer.TextXAlignment=Enum.TextXAlignment.Center; cardVer.ZIndex=103; cardVer.Parent=cardFrame
+local cardVer=Instance.new("TextLabel"); cardVer.Size=UDim2.new(1,0,0,22); cardVer.Position=UDim2.new(0,0,0,56); cardVer.BackgroundTransparency=1; cardVer.Text="v0.2.4"; cardVer.TextColor3=Color3.fromRGB(130,130,130); cardVer.TextTransparency=1; cardVer.TextSize=13; cardVer.Font=Enum.Font.GothamMedium; cardVer.TextXAlignment=Enum.TextXAlignment.Center; cardVer.ZIndex=103; cardVer.Parent=cardFrame
 local cardMade=Instance.new("TextLabel"); cardMade.Size=UDim2.new(1,0,0,18); cardMade.Position=UDim2.new(0,0,0,80); cardMade.BackgroundTransparency=1; cardMade.Text="Made by: kxzkx"; cardMade.TextColor3=Color3.fromRGB(80,80,80); cardMade.TextTransparency=1; cardMade.TextSize=11; cardMade.Font=Enum.Font.GothamMedium; cardMade.TextXAlignment=Enum.TextXAlignment.Center; cardMade.ZIndex=103; cardMade.Parent=cardFrame
 
+
+-- ============================================================
+-- FORWARD DECLARE GUI HANDLES
+-- ============================================================
 local mainGui,radarGui,hudGui,sysGui,popupGui
 
+
+-- ============================================================
+-- SOUNDS
+-- ============================================================
 local menuOpenSound=Instance.new("Sound"); menuOpenSound.SoundId="rbxassetid://6518811702"; menuOpenSound.Volume=0.4; menuOpenSound.Parent=SoundService
 local heartbeatSound=Instance.new("Sound"); heartbeatSound.SoundId="rbxassetid://185958167"; heartbeatSound.Volume=0; heartbeatSound.Looped=true; heartbeatSound.Parent=SoundService
 local popupSound=Instance.new("Sound"); popupSound.SoundId="rbxassetid://4590662766"; popupSound.Volume=0.6; popupSound.Parent=SoundService
@@ -62,6 +76,10 @@ task.spawn(function()
     if popupGui then popupGui.Enabled=true end
 end)
 
+
+-- ============================================================
+-- CONFIG TABLE
+-- ============================================================
 local Cfg={
     Enabled=false,Box=false,BoxStyle="Corner",BoxColor=Color3.fromRGB(255,50,50),BoxThickness=1.5,CornerRatio=0.25,
     Tracer=false,TracerOrigin="Bottom",TracerThickness=1,
@@ -82,6 +100,10 @@ local PARTS_CYCLE={"Head","UpperTorso","LowerTorso","RightUpperArm","LeftUpperAr
 local partIndex=1
 local MAX_TEAMMATES=4
 
+
+-- ============================================================
+-- STATE VARIABLES
+-- ============================================================
 local ESPObjects={}
 local RainbowColor=Color3.fromRGB(255,50,50)
 local Unloaded=false
@@ -103,12 +125,22 @@ local EXIT_C=Color3.fromRGB(210,50,50)
 local DEATH_C=Color3.fromRGB(240,240,240)
 local QUEST_C=Color3.fromRGB(255,220,80)
 
+
+-- ============================================================
+-- DRAWING PRIMITIVES
+-- ============================================================
 local function newLine(c,t) local l=Drawing.new("Line"); l.Visible=false; l.Color=c or Color3.new(1,1,1); l.Thickness=t or 1; l.ZIndex=5; return l end
 local function newText(s,c) local t=Drawing.new("Text"); t.Visible=false; t.Size=s or 13; t.Color=c or Color3.new(1,1,1); t.Center=true; t.Outline=true; t.Font=2; t.ZIndex=6; return t end
 local function newSquare(c,f) local s=Drawing.new("Square"); s.Visible=false; s.Color=c or Color3.new(1,1,1); s.Filled=f or false; s.Transparency=1; s.Thickness=1; s.ZIndex=4; return s end
 
+-- ============================================================
+-- WORLD TO SCREEN
+-- ============================================================
 local function toScreen(wp) local sp,vis=Camera:WorldToViewportPoint(wp); return Vector2.new(sp.X,sp.Y),vis,sp.Z end
 
+-- ============================================================
+-- TRACER ORIGIN
+-- ============================================================
 local function tracerOrigin()
     local vp=Camera.ViewportSize
     if Cfg.TracerOrigin=="Bottom" then return Vector2.new(vp.X/2,vp.Y)
@@ -117,17 +149,26 @@ local function tracerOrigin()
     return Vector2.new(vp.X/2,vp.Y/2)
 end
 
+-- ============================================================
+-- COLOR RESOLVER
+-- ============================================================
 local function getColor(p)
     if Cfg.Rainbow then return RainbowColor end
     if Cfg.TeamCheck and p.Team==LocalPlayer.Team then return Cfg.TeamColor end
     return Cfg.BoxColor
 end
 
+-- ============================================================
+-- WEAPON NAME HELPER
+-- ============================================================
 local function getWeaponName(char)
     if not char then return nil end
     local h=char:FindFirstChild("Holding"); if h and h.Value then return h.Value.Name end; return nil
 end
 
+-- ============================================================
+-- AIMBOT TARGET FINDER
+-- ============================================================
 local function getTarget()
     local vp=Camera.ViewportSize; local ctr=Vector2.new(vp.X/2,vp.Y/2); local best,bestD=nil,Cfg.AimbotFOV
     for _,p in ipairs(Players:GetPlayers()) do
@@ -145,23 +186,18 @@ end
 
 local exitDrawDots={}; local questDrawDots={}; local deathDrawDot=nil; local aimTraceLine=nil
 
+
+-- ============================================================
+-- WORLD OBJECT REFRESH (exits and quests)
+-- ============================================================
 local function refreshExits()
     exitParts={}
     pcall(function()
         local nc=workspace:FindFirstChild("nocollision"); if not nc then return end
         local el=nc:FindFirstChild("exitlocations"); if not el then return end
         for _,c in ipairs(el:GetChildren()) do
-            if c:IsA("BasePart") then
-                table.insert(exitParts,c)
-            elseif c:IsA("Model") then
-                local bp=c.PrimaryPart or c:FindFirstChildOfClass("BasePart")
-                if bp then table.insert(exitParts,bp) end
-            end
-        end
-        if #exitParts==0 then
-            for _,d in ipairs(el:GetDescendants()) do
-                if d:IsA("BasePart") then table.insert(exitParts,d) end
-            end
+            if c:IsA("BasePart") then table.insert(exitParts,c)
+            elseif c:IsA("Model") then local bp=c.PrimaryPart or c:FindFirstChildOfClass("BasePart"); if bp then table.insert(exitParts,bp) end end
         end
     end)
 end
@@ -178,10 +214,20 @@ local function refreshQuests()
     end)
 end
 
+-- ============================================================
+-- AUTO REFRESH LOOP
+-- ============================================================
 task.spawn(function() while not Unloaded do refreshExits(); refreshQuests(); task.wait(5) end end)
 
+
+-- ============================================================
+-- SKELETON BONE DEFINITIONS
+-- ============================================================
 local BONES={"HeadNeck","NeckTorso","TorsoLShoulder","TorsoRShoulder","LShoulderElbow","LElbowHand","RShoulderElbow","RElbowHand","TorsoLHip","TorsoRHip","LHipKnee","LKneeAnkle","RHipKnee","RKneeAnkle"}
 
+-- ============================================================
+-- CREATE ESP
+-- ============================================================
 local function createESP(player)
     if player==LocalPlayer or ESPObjects[player] then return end
     local skel={}; for _,n in ipairs(BONES) do skel[n]=newLine(Cfg.SkeletonColor,Cfg.SkeletonThick) end
@@ -195,6 +241,9 @@ local function createESP(player)
     }
 end
 
+-- ============================================================
+-- HIDE ALL ESP
+-- ============================================================
 local function hideAll(obj)
     if not obj then return end
     for _,v in pairs(obj.box) do v.Visible=false end; obj.tracer.Visible=false
@@ -204,6 +253,9 @@ local function hideAll(obj)
     obj.highlight.Enabled=false
 end
 
+-- ============================================================
+-- REMOVE ESP
+-- ============================================================
 local function removeESP(player)
     local obj=ESPObjects[player]; if not obj then return end
     for _,v in pairs(obj.box) do v:Remove() end; obj.tracer:Remove()
@@ -213,6 +265,9 @@ local function removeESP(player)
     obj.highlight:Destroy(); ESPObjects[player]=nil
 end
 
+-- ============================================================
+-- BOX DRAWING
+-- ============================================================
 local function drawBox(obj,bPos,bSize,color)
     local bx=obj.box; local x,y,w,h=bPos.X,bPos.Y,bSize.X,bSize.Y; local cr=math.min(w,h)*Cfg.CornerRatio
     for _,l in pairs(bx) do l.Visible=false end
@@ -221,6 +276,9 @@ local function drawBox(obj,bPos,bSize,color)
     else set(bx.L1,x,y,x+cr,y); set(bx.L2,x,y,x,y+cr); set(bx.L3,x+w,y,x+w-cr,y); set(bx.L4,x+w,y,x+w,y+cr); set(bx.L5,x,y+h,x+cr,y+h); set(bx.L6,x,y+h,x,y+h-cr); set(bx.L7,x+w,y+h,x+w-cr,y+h); set(bx.L8,x+w,y+h,x+w,y+h-cr) end
 end
 
+-- ============================================================
+-- SKELETON DRAWING
+-- ============================================================
 local function drawSkeleton(obj,char)
     for _,l in pairs(obj.skeleton) do l.Visible=false end; if not Cfg.Skeleton then return end
     local function p(n) return char:FindFirstChild(n) end
@@ -230,6 +288,9 @@ local function drawSkeleton(obj,char)
     bone(sk.HeadNeck,pt.Head,pt.UT); bone(sk.NeckTorso,pt.UT,pt.LT); bone(sk.TorsoLShoulder,pt.UT,pt.LUA); bone(sk.TorsoRShoulder,pt.UT,pt.RUA); bone(sk.LShoulderElbow,pt.LUA,pt.LLA); bone(sk.LElbowHand,pt.LLA,pt.LH); bone(sk.RShoulderElbow,pt.RUA,pt.RLA); bone(sk.RElbowHand,pt.RLA,pt.RH); bone(sk.TorsoLHip,pt.LT,pt.LUL); bone(sk.TorsoRHip,pt.LT,pt.RUL); bone(sk.LHipKnee,pt.LUL,pt.LLL); bone(sk.LKneeAnkle,pt.LLL,pt.LF); bone(sk.RHipKnee,pt.RUL,pt.RLL); bone(sk.RKneeAnkle,pt.RLL,pt.RF)
 end
 
+-- ============================================================
+-- ESP UPDATE
+-- ============================================================
 local function updateESP(player)
     local obj=ESPObjects[player]; if not obj then return end
     local char=player.Character; if not char then hideAll(obj); return end
@@ -258,6 +319,10 @@ local function updateESP(player)
     if Cfg.Chams then if obj.highlight.Parent~=char then obj.highlight.Parent=char end; obj.highlight.FillColor=Cfg.ChamsFill; obj.highlight.OutlineColor=Cfg.ChamsOutline; obj.highlight.FillTransparency=Cfg.ChamsFillTrans; obj.highlight.OutlineTransparency=Cfg.ChamsOutTrans; obj.highlight.Enabled=true else obj.highlight.Enabled=false end
 end
 
+
+-- ============================================================
+-- WORLD LABEL HELPERS
+-- ============================================================
 local function ensureWorldLabel(tbl,i,col)
     if not tbl[i] then
         local d=Drawing.new("Text"); d.Size=15; d.Center=true; d.Outline=true; d.Font=2; d.Color=col; d.ZIndex=8; d.Visible=false
@@ -285,6 +350,10 @@ local function placeWorldLabel(entry,worldPos,txt,lr)
     end
 end
 
+
+-- ============================================================
+-- WORLD ESP (exits, death, quests, teammate labels)
+-- ============================================================
 local function updateWorldESP()
     local char=LocalPlayer.Character; local lr=char and char:FindFirstChild("HumanoidRootPart")
 
@@ -352,21 +421,37 @@ end
 
 local W=224; local TITLE_H=36; local TAB_H=26; local PAGE_TOP=TITLE_H+TAB_H; local PIN_H=36
 
+
+-- ============================================================
+-- MAIN GUI PANEL
+-- ============================================================
 mainGui=Instance.new("ScreenGui"); mainGui.Name="XFent"; mainGui.ResetOnSpawn=false; mainGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; mainGui.DisplayOrder=10; mainGui.Enabled=false; mainGui.Parent=LocalPlayer.PlayerGui
 
 local panel=Instance.new("Frame"); panel.Size=UDim2.new(0,W,0,TITLE_H); panel.Position=UDim2.new(0,20,0,16); panel.BackgroundColor3=BLACK; panel.BackgroundTransparency=0.38; panel.BorderSizePixel=0; panel.Active=true; panel.ClipsDescendants=true; panel.Parent=mainGui
 Instance.new("UICorner",panel).CornerRadius=UDim.new(0,8)
 local stroke=Instance.new("UIStroke"); stroke.Color=RED; stroke.Thickness=1.2; stroke.Parent=panel; table.insert(colorTargets,{obj=stroke,prop="Color"})
 
+
+-- ============================================================
+-- TITLE BAR
+-- ============================================================
 local titleBar=Instance.new("Frame"); titleBar.Size=UDim2.new(1,0,0,TITLE_H); titleBar.BackgroundTransparency=1; titleBar.BorderSizePixel=0; titleBar.ZIndex=3; titleBar.Parent=panel
 local titleName=Instance.new("TextLabel"); titleName.Size=UDim2.new(1,-80,1,0); titleName.Position=UDim2.new(0,12,0,0); titleName.BackgroundTransparency=1; titleName.Text="XFent"; titleName.TextColor3=RED; titleName.TextSize=13; titleName.Font=Enum.Font.GothamBold; titleName.TextXAlignment=Enum.TextXAlignment.Left; titleName.ZIndex=4; titleName.Parent=titleBar; table.insert(colorTargets,{obj=titleName,prop="TextColor3"})
 local titleVer=Instance.new("TextLabel"); titleVer.Size=UDim2.new(0,36,1,0); titleVer.Position=UDim2.new(1,-82,0,0); titleVer.BackgroundTransparency=1; titleVer.Text="v0.2.3"; titleVer.TextColor3=Color3.fromRGB(90,90,90); titleVer.TextSize=9; titleVer.Font=Enum.Font.GothamMedium; titleVer.TextXAlignment=Enum.TextXAlignment.Right; titleVer.ZIndex=4; titleVer.Parent=titleBar
 local toggleBtn=Instance.new("TextButton"); toggleBtn.Size=UDim2.new(0,38,0,20); toggleBtn.Position=UDim2.new(1,-44,0.5,-10); toggleBtn.BackgroundColor3=DARKRED; toggleBtn.BorderSizePixel=0; toggleBtn.Text="OPEN"; toggleBtn.TextColor3=Color3.fromRGB(200,200,200); toggleBtn.TextSize=9; toggleBtn.Font=Enum.Font.GothamBold; toggleBtn.ZIndex=6; toggleBtn.AutoButtonColor=false; toggleBtn.Parent=titleBar
 Instance.new("UICorner",toggleBtn).CornerRadius=UDim.new(0,5); table.insert(colorTargets,{obj=toggleBtn,prop="BackgroundColor3"})
 
+
+-- ============================================================
+-- TAB BAR
+-- ============================================================
 local tabBar=Instance.new("Frame"); tabBar.Size=UDim2.new(1,0,0,TAB_H); tabBar.Position=UDim2.new(0,0,0,TITLE_H); tabBar.BackgroundColor3=Color3.fromRGB(8,8,8); tabBar.BackgroundTransparency=0.3; tabBar.BorderSizePixel=0; tabBar.ZIndex=3; tabBar.Visible=false; tabBar.Parent=panel
 Instance.new("UIListLayout",tabBar).FillDirection=Enum.FillDirection.Horizontal; local _tl=tabBar:FindFirstChildOfClass("UIListLayout"); _tl.HorizontalAlignment=Enum.HorizontalAlignment.Center; _tl.VerticalAlignment=Enum.VerticalAlignment.Center; _tl.Padding=UDim.new(0,2)
 
+
+-- ============================================================
+-- PAGE FACTORY
+-- ============================================================
 local function makePage()
     local f=Instance.new("ScrollingFrame"); f.BackgroundTransparency=1; f.BorderSizePixel=0; f.ZIndex=2; f.Visible=false; f.ScrollBarThickness=3; f.ScrollBarImageColor3=RED; f.CanvasSize=UDim2.new(0,0,0,0); f.AutomaticCanvasSize=Enum.AutomaticSize.Y; f.Parent=panel
     local l=Instance.new("UIListLayout"); l.Padding=UDim.new(0,4); l.HorizontalAlignment=Enum.HorizontalAlignment.Center; l.Parent=f
@@ -374,6 +459,10 @@ local function makePage()
     return f,l
 end
 
+
+-- ============================================================
+-- CREATE TAB PAGES
+-- ============================================================
 local pageESP,layESP=makePage(); local pageMap,layMap=makePage(); local pagePlayers,layPlayers=makePage(); local pageAimbot,layAimbot=makePage(); local pageSet,laySet=makePage()
 
 local function setPageBounds(page,pinned)
@@ -384,12 +473,19 @@ setPageBounds(pageESP,false); setPageBounds(pageMap,false); setPageBounds(pagePl
 
 local activeTab,tabBtns,activeLayout=nil,{},nil; local isOpen=false
 
+-- ============================================================
+-- PANEL HEIGHT HELPER
+-- ============================================================
 local function getOpenHeight()
     if not activeLayout then return TITLE_H end
     local extra=(activeTab==pageESP or activeTab==pageAimbot) and PIN_H or 0
     return math.min(activeLayout.AbsoluteContentSize.Y+PAGE_TOP+20+extra,480)
 end
 
+
+-- ============================================================
+-- ESP PIN BAR
+-- ============================================================
 local pinFrame=Instance.new("Frame"); pinFrame.Size=UDim2.new(1,0,0,PIN_H); pinFrame.Position=UDim2.new(0,0,0,PAGE_TOP); pinFrame.BackgroundColor3=Color3.fromRGB(12,5,5); pinFrame.BackgroundTransparency=0.1; pinFrame.BorderSizePixel=0; pinFrame.ZIndex=5; pinFrame.Visible=false; pinFrame.Parent=panel
 local pinSep=Instance.new("Frame"); pinSep.Size=UDim2.new(1,0,0,1); pinSep.Position=UDim2.new(0,0,1,-1); pinSep.BackgroundColor3=RED; pinSep.BackgroundTransparency=0.5; pinSep.BorderSizePixel=0; pinSep.ZIndex=6; pinSep.Parent=pinFrame; table.insert(colorTargets,{obj=pinSep,prop="BackgroundColor3"})
 Instance.new("UIPadding",pinFrame).PaddingLeft=UDim.new(0,10)
@@ -401,6 +497,10 @@ local function refreshPin() local on=Cfg.Enabled; pinLbl.TextColor3=on and Color
 refreshPin(); toggleRefs["Enabled"]=refreshPin
 pinBtn.MouseButton1Click:Connect(function() Cfg.Enabled=not Cfg.Enabled; refreshPin(); if Cfg.Enabled then for _,p in ipairs(Players:GetPlayers()) do if p~=LocalPlayer then createESP(p) end end else for _,p in ipairs(Players:GetPlayers()) do hideAll(ESPObjects[p]) end end end)
 
+
+-- ============================================================
+-- AIMBOT PIN BAR
+-- ============================================================
 local aimPinFrame=Instance.new("Frame"); aimPinFrame.Size=UDim2.new(1,0,0,PIN_H); aimPinFrame.Position=UDim2.new(0,0,0,PAGE_TOP); aimPinFrame.BackgroundColor3=Color3.fromRGB(5,5,12); aimPinFrame.BackgroundTransparency=0.1; aimPinFrame.BorderSizePixel=0; aimPinFrame.ZIndex=5; aimPinFrame.Visible=false; aimPinFrame.Parent=panel
 local aimPinSep=Instance.new("Frame"); aimPinSep.Size=UDim2.new(1,0,0,1); aimPinSep.Position=UDim2.new(0,0,1,-1); aimPinSep.BackgroundColor3=Color3.fromRGB(255,60,60); aimPinSep.BackgroundTransparency=0.5; aimPinSep.BorderSizePixel=0; aimPinSep.ZIndex=6; aimPinSep.Parent=aimPinFrame
 Instance.new("UIPadding",aimPinFrame).PaddingLeft=UDim.new(0,10)
@@ -412,6 +512,10 @@ local function refreshAimPin() local on=Cfg.AimbotEnabled; aimPinLbl.TextColor3=
 refreshAimPin(); toggleRefs["AimbotEnabled"]=refreshAimPin
 aimPinBtn.MouseButton1Click:Connect(function() Cfg.AimbotEnabled=not Cfg.AimbotEnabled; refreshAimPin() end)
 
+
+-- ============================================================
+-- TAB SWITCHING
+-- ============================================================
 local function switchTab(page,btn,layout)
     pageESP.Visible=false; pageMap.Visible=false; pagePlayers.Visible=false; pageAimbot.Visible=false; pageSet.Visible=false
     page.Visible=true; activeTab=page; activeLayout=layout
@@ -422,17 +526,26 @@ local function switchTab(page,btn,layout)
     if isOpen then panel.Size=UDim2.new(0,W,0,getOpenHeight()) end
 end
 
+-- ============================================================
+-- TAB BUTTON FACTORY
+-- ============================================================
 local function makeTabBtn(emoji,page,layout)
     local btn=Instance.new("TextButton"); btn.Size=UDim2.new(0,36,0,18); btn.BackgroundColor3=Color3.fromRGB(22,22,22); btn.BorderSizePixel=0; btn.Text=emoji; btn.TextColor3=Color3.fromRGB(100,100,100); btn.TextSize=14; btn.Font=Enum.Font.GothamBold; btn.ZIndex=4; btn.AutoButtonColor=false; btn.Parent=tabBar
     Instance.new("UICorner",btn).CornerRadius=UDim.new(0,5); tabBtns[emoji]=btn; btn.MouseButton1Click:Connect(function() switchTab(page,btn,layout) end); return btn
 end
 
+-- ============================================================
+-- APPLY ACCENT COLOR
+-- ============================================================
 local function applyColor(c)
     RED=c; DARKRED=Color3.fromRGB(math.max(0,math.floor(c.R*255*0.43)),math.max(0,math.floor(c.G*255*0.04)),math.max(0,math.floor(c.B*255*0.04))); Cfg.BoxColor=c
     for _,t in ipairs(colorTargets) do pcall(function() t.obj[t.prop]=c end) end
     for _,ref in pairs(toggleRefs) do pcall(ref) end
 end
 
+-- ============================================================
+-- TOGGLE WIDGET
+-- ============================================================
 local function makeToggle(parent,lbl,key,ac)
     local row=Instance.new("TextButton"); row.Size=UDim2.new(1,0,0,28); row.BackgroundColor3=GREY; row.BackgroundTransparency=0.3; row.BorderSizePixel=0; row.Text=""; row.AutoButtonColor=false; row.ZIndex=3; row.Parent=parent; Instance.new("UICorner",row).CornerRadius=UDim.new(0,6)
     local tag=Instance.new("Frame"); tag.Size=UDim2.new(0,2,0.55,0); tag.Position=UDim2.new(0,0,0.225,0); tag.BackgroundColor3=ac or RED; tag.BorderSizePixel=0; tag.ZIndex=4; tag.Parent=row; Instance.new("UICorner",tag).CornerRadius=UDim.new(0,2)
@@ -446,6 +559,9 @@ local function makeToggle(parent,lbl,key,ac)
     end)
 end
 
+-- ============================================================
+-- TOGGLE WITH SUB-MENU WIDGET
+-- ============================================================
 local function makeToggleWithSub(parent,lbl,key,ac,subBuilder)
     local container=Instance.new("Frame"); container.Size=UDim2.new(1,0,0,28); container.BackgroundTransparency=1; container.BorderSizePixel=0; container.ZIndex=2; container.ClipsDescendants=false; container.Parent=parent
     local row=Instance.new("TextButton"); row.Size=UDim2.new(1,0,0,28); row.BackgroundColor3=GREY; row.BackgroundTransparency=0.3; row.BorderSizePixel=0; row.Text=""; row.AutoButtonColor=false; row.ZIndex=3; row.Parent=container; Instance.new("UICorner",row).CornerRadius=UDim.new(0,6)
@@ -470,10 +586,19 @@ local function makeToggleWithSub(parent,lbl,key,ac,subBuilder)
     ref(); toggleRefs[key]=ref; row.MouseButton1Click:Connect(function() Cfg[key]=not Cfg[key]; ref() end)
 end
 
+-- ============================================================
+-- SECTION LABEL WIDGET
+-- ============================================================
 local function makeSec(parent,text) local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(1,0,0,14); lbl.BackgroundTransparency=1; lbl.Text=text; lbl.TextColor3=Color3.fromRGB(80,18,18); lbl.TextSize=9; lbl.Font=Enum.Font.GothamBold; lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.ZIndex=3; lbl.Parent=parent end
 
+-- ============================================================
+-- BUTTON WIDGET
+-- ============================================================
 local function makeBtn(parent,lbl,color,cb) local b=Instance.new("TextButton"); b.Size=UDim2.new(1,0,0,28); b.BackgroundColor3=color or DARKRED; b.BackgroundTransparency=0.2; b.BorderSizePixel=0; b.Text=lbl; b.TextColor3=Color3.fromRGB(210,210,210); b.TextSize=11; b.Font=Enum.Font.GothamBold; b.ZIndex=3; b.AutoButtonColor=false; b.Parent=parent; Instance.new("UICorner",b).CornerRadius=UDim.new(0,6); b.MouseButton1Click:Connect(cb); return b end
 
+-- ============================================================
+-- SLIDER WIDGET
+-- ============================================================
 local function makeSlider(parent,lbl,min,max,default,onChange)
     local holder=Instance.new("Frame"); holder.Size=UDim2.new(1,0,0,46); holder.BackgroundColor3=GREY; holder.BackgroundTransparency=0.3; holder.BorderSizePixel=0; holder.ZIndex=3; holder.Parent=parent; Instance.new("UICorner",holder).CornerRadius=UDim.new(0,6)
     local tag=Instance.new("Frame"); tag.Size=UDim2.new(0,2,0.55,0); tag.Position=UDim2.new(0,0,0.225,0); tag.BackgroundColor3=RED; tag.BorderSizePixel=0; tag.ZIndex=4; tag.Parent=holder; Instance.new("UICorner",tag).CornerRadius=UDim.new(0,2)
@@ -489,6 +614,9 @@ local function makeSlider(parent,lbl,min,max,default,onChange)
     UserInputService.InputChanged:Connect(function(i) if dragging and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then fromX(i.Position.X) end end)
 end
 
+-- ============================================================
+-- HOTKEY ROW WIDGET
+-- ============================================================
 local function makeHotkeyRow(parent,label,cfgKey)
     local row=Instance.new("Frame"); row.Size=UDim2.new(1,0,0,28); row.BackgroundColor3=GREY; row.BackgroundTransparency=0.3; row.BorderSizePixel=0; row.ZIndex=3; row.Parent=parent; Instance.new("UICorner",row).CornerRadius=UDim.new(0,6)
     local tag=Instance.new("Frame"); tag.Size=UDim2.new(0,2,0.55,0); tag.Position=UDim2.new(0,0,0.225,0); tag.BackgroundColor3=RED; tag.BorderSizePixel=0; tag.ZIndex=4; tag.Parent=row; Instance.new("UICorner",tag).CornerRadius=UDim.new(0,2)
@@ -500,6 +628,9 @@ local function makeHotkeyRow(parent,label,cfgKey)
         local conn; conn=UserInputService.InputBegan:Connect(function(inp,gp) if inp.UserInputType==Enum.UserInputType.Keyboard then Cfg.Hotkeys[cfgKey]=inp.KeyCode; waiting=false; refresh(); conn:Disconnect() end end) end)
 end
 
+-- ============================================================
+-- AIM KEY ROW WIDGET
+-- ============================================================
 local function makeAimKeyRow(parent,label)
     local row=Instance.new("Frame"); row.Size=UDim2.new(1,0,0,28); row.BackgroundColor3=GREY; row.BackgroundTransparency=0.3; row.BorderSizePixel=0; row.ZIndex=3; row.Parent=parent; Instance.new("UICorner",row).CornerRadius=UDim.new(0,6)
     local tag=Instance.new("Frame"); tag.Size=UDim2.new(0,2,0.55,0); tag.Position=UDim2.new(0,0,0.225,0); tag.BackgroundColor3=Color3.fromRGB(255,60,60); tag.BorderSizePixel=0; tag.ZIndex=4; tag.Parent=row; Instance.new("UICorner",tag).CornerRadius=UDim.new(0,2)
@@ -515,6 +646,10 @@ local function makeAimKeyRow(parent,label)
         end) end)
 end
 
+
+-- ============================================================
+-- TAB CONTENT: ESP
+-- ============================================================
 makeSec(pageESP,"  Range"); makeSlider(pageESP,"Max Distance",100,5000,1000,function(v) Cfg.MaxDistance=v end)
 makeSec(pageESP,"  Box"); makeToggle(pageESP,"Box ESP","Box",Color3.fromRGB(210,30,30))
 makeSec(pageESP,"  Health"); makeToggle(pageESP,"Health Bar","HealthBar",Color3.fromRGB(60,200,80)); makeToggle(pageESP,"Health Text","HealthText",Color3.fromRGB(50,180,70))
@@ -535,51 +670,41 @@ makeToggleWithSub(pageESP,"Radar","Radar",Color3.fromRGB(50,200,200),function(su
     st("Rotate with Camera","RadarRotate",Color3.fromRGB(50,200,200)); ss("Range",50,500,100,function(v) Cfg.RadarRange=v end); ss("Dot Size",3,12,5,function(v) Cfg.RadarDotSize=v end)
 end)
 
-local MAP_SIZE=170; local MAP_RANGE=300; local MAP_HALF=MAP_SIZE/2
-local mapWrapper=Instance.new("Frame"); mapWrapper.Size=UDim2.new(1,0,0,MAP_SIZE+16); mapWrapper.BackgroundTransparency=1; mapWrapper.BorderSizePixel=0; mapWrapper.ZIndex=3; mapWrapper.Parent=pageMap
 
-local mapOuter=Instance.new("Frame"); mapOuter.Size=UDim2.new(0,MAP_SIZE+8,0,MAP_SIZE+8); mapOuter.Position=UDim2.new(0.5,-(MAP_SIZE/2+4),0,-4); mapOuter.BackgroundTransparency=1; mapOuter.BorderSizePixel=0; mapOuter.ZIndex=2; mapOuter.Parent=mapWrapper
-
-local mapCanvas=Instance.new("Frame"); mapCanvas.Size=UDim2.new(0,MAP_SIZE,0,MAP_SIZE); mapCanvas.Position=UDim2.new(0,4,0,4); mapCanvas.BackgroundColor3=Color3.fromRGB(4,4,4); mapCanvas.BackgroundTransparency=0.1; mapCanvas.BorderSizePixel=0; mapCanvas.ZIndex=3; mapCanvas.ClipsDescendants=true; mapCanvas.Parent=mapOuter
+-- ============================================================
+-- TAB CONTENT: MAP
+-- ============================================================
+local MAP_SIZE=160; local MAP_RANGE=300
+local mapWrapper=Instance.new("Frame"); mapWrapper.Size=UDim2.new(1,0,0,MAP_SIZE+30); mapWrapper.BackgroundTransparency=1; mapWrapper.BorderSizePixel=0; mapWrapper.ZIndex=3; mapWrapper.Parent=pageMap
+local mapCanvas=Instance.new("Frame"); mapCanvas.Size=UDim2.new(0,MAP_SIZE,0,MAP_SIZE); mapCanvas.Position=UDim2.new(0.5,-(MAP_SIZE/2),0,0); mapCanvas.BackgroundColor3=Color3.fromRGB(6,6,6); mapCanvas.BackgroundTransparency=0.15; mapCanvas.BorderSizePixel=0; mapCanvas.ZIndex=3; mapCanvas.ClipsDescendants=true; mapCanvas.Parent=mapWrapper
 Instance.new("UICorner",mapCanvas).CornerRadius=UDim.new(0.5,0)
-local mapStroke=Instance.new("UIStroke"); mapStroke.Color=RED; mapStroke.Thickness=1.6; mapStroke.Parent=mapCanvas; table.insert(colorTargets,{obj=mapStroke,prop="Color"})
+local mapStroke=Instance.new("UIStroke"); mapStroke.Color=RED; mapStroke.Thickness=1.4; mapStroke.Parent=mapCanvas; table.insert(colorTargets,{obj=mapStroke,prop="Color"})
 
-for _,r in ipairs({0.35,0.65}) do
+for _,r in ipairs({0.33,0.66}) do
     local px=math.floor(MAP_SIZE*r); local off=math.floor(px/2)
-    local ring=Instance.new("Frame"); ring.Size=UDim2.new(0,px,0,px); ring.Position=UDim2.new(0.5,-off,0.5,-off); ring.BackgroundTransparency=1; ring.BorderSizePixel=0; ring.ZIndex=4; ring.Parent=mapCanvas
-    local rs=Instance.new("UIStroke"); rs.Color=Color3.fromRGB(40,40,40); rs.Thickness=1; rs.Parent=ring; Instance.new("UICorner",ring).CornerRadius=UDim.new(0.5,0)
+    local ring=Instance.new("Frame"); ring.Size=UDim2.new(0,px,0,px); ring.Position=UDim2.new(0.5,-off,0.5,-off); ring.BackgroundTransparency=1; ring.BorderSizePixel=0; ring.ZIndex=3; ring.Parent=mapCanvas
+    local rs=Instance.new("UIStroke"); rs.Color=Color3.fromRGB(45,45,45); rs.Thickness=1; rs.Parent=ring; Instance.new("UICorner",ring).CornerRadius=UDim.new(0.5,0)
 end
 
-local function makeCross(h) local l=Instance.new("Frame"); l.BackgroundColor3=Color3.fromRGB(30,30,30); l.BorderSizePixel=0; l.ZIndex=4; l.Parent=mapCanvas; if h then l.Size=UDim2.new(1,0,0,1); l.Position=UDim2.new(0,0,0.5,0) else l.Size=UDim2.new(0,1,1,0); l.Position=UDim2.new(0.5,0,0,0) end end
+local function makeCross(h) local l=Instance.new("Frame"); l.BackgroundColor3=Color3.fromRGB(35,35,35); l.BorderSizePixel=0; l.ZIndex=3; l.Parent=mapCanvas; if h then l.Size=UDim2.new(1,0,0,1); l.Position=UDim2.new(0,0,0.5,0) else l.Size=UDim2.new(0,1,1,0); l.Position=UDim2.new(0.5,0,0,0) end end
 makeCross(true); makeCross(false)
-
-local mapSelf=Instance.new("Frame"); mapSelf.Size=UDim2.new(0,7,0,7); mapSelf.AnchorPoint=Vector2.new(0.5,0.5); mapSelf.Position=UDim2.new(0.5,0,0.5,0); mapSelf.BackgroundColor3=Color3.fromRGB(255,255,255); mapSelf.BorderSizePixel=0; mapSelf.ZIndex=9; mapSelf.Parent=mapCanvas; Instance.new("UICorner",mapSelf).CornerRadius=UDim.new(0.5,0)
-
-local mapArrow=Instance.new("ImageLabel"); mapArrow.Size=UDim2.new(0,12,0,12); mapArrow.AnchorPoint=Vector2.new(0.5,0.5); mapArrow.Position=UDim2.new(0.5,0,0.5,-11); mapArrow.BackgroundTransparency=1; mapArrow.Image="rbxassetid://4666593702"; mapArrow.ImageColor3=Color3.fromRGB(255,60,60); mapArrow.ZIndex=10; mapArrow.Parent=mapCanvas
-
-local COMPASS_DIRS={{"N",0,-1},{"S",0,1},{"W",-1,0},{"E",1,0}}
-local compassLabels={}
-for _,cd in ipairs(COMPASS_DIRS) do
-    local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(0,16,0,14); lbl.AnchorPoint=Vector2.new(0.5,0.5)
-    local edge=MAP_HALF-10
-    lbl.Position=UDim2.new(0.5,cd[2]*edge,0.5,cd[3]*edge)
-    lbl.BackgroundTransparency=1; lbl.Text=cd[1]; lbl.TextColor3=Color3.fromRGB(255,80,80); lbl.TextSize=9; lbl.Font=Enum.Font.GothamBold; lbl.ZIndex=8; lbl.Parent=mapCanvas
-    compassLabels[cd[1]]=lbl
-end
-
-local headingLbl=Instance.new("TextLabel"); headingLbl.Size=UDim2.new(0,MAP_SIZE,0,14); headingLbl.Position=UDim2.new(0.5,-(MAP_SIZE/2),0,MAP_SIZE+12); headingLbl.BackgroundTransparency=1; headingLbl.TextColor3=Color3.fromRGB(140,140,140); headingLbl.TextSize=9; headingLbl.Font=Enum.Font.GothamMedium; headingLbl.TextXAlignment=Enum.TextXAlignment.Center; headingLbl.ZIndex=3; headingLbl.Parent=mapWrapper
+local mapSelf=Instance.new("Frame"); mapSelf.Size=UDim2.new(0,8,0,8); mapSelf.Position=UDim2.new(0.5,-4,0.5,-4); mapSelf.BackgroundColor3=Color3.fromRGB(255,255,255); mapSelf.BorderSizePixel=0; mapSelf.ZIndex=7; mapSelf.Parent=mapCanvas; Instance.new("UICorner",mapSelf).CornerRadius=UDim.new(0.5,0)
+local compassLbl=Instance.new("TextLabel"); compassLbl.Size=UDim2.new(0,MAP_SIZE,0,20); compassLbl.Position=UDim2.new(0.5,-(MAP_SIZE/2),0,MAP_SIZE+5); compassLbl.BackgroundTransparency=1; compassLbl.TextColor3=Color3.fromRGB(160,160,160); compassLbl.TextSize=9; compassLbl.Font=Enum.Font.GothamMedium; compassLbl.TextXAlignment=Enum.TextXAlignment.Center; compassLbl.ZIndex=3; compassLbl.Parent=mapWrapper
 
 local mapExitDots={}; local mapDeathDot=nil; local mapQuestDots={}
 local function makeMapDot(col,txt,zidx)
-    local f=Instance.new("Frame"); f.Size=UDim2.new(0,9,0,9); f.AnchorPoint=Vector2.new(0.5,0.5); f.BackgroundColor3=col; f.BorderSizePixel=0; f.ZIndex=zidx or 6; f.Visible=false; f.Parent=mapCanvas; Instance.new("UICorner",f).CornerRadius=UDim.new(0.5,0)
-    local gs=Instance.new("UIStroke"); gs.Color=Color3.fromRGB(255,255,255); gs.Transparency=0.7; gs.Thickness=1; gs.Parent=f
-    local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(0,55,0,13); lbl.Position=UDim2.new(0,11,0,-3); lbl.BackgroundTransparency=1; lbl.Text=txt; lbl.TextColor3=col; lbl.TextSize=7; lbl.Font=Enum.Font.GothamBold; lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.ZIndex=zidx or 6; lbl.Parent=f
+    local f=Instance.new("Frame"); f.Size=UDim2.new(0,10,0,10); f.BackgroundColor3=col; f.BorderSizePixel=0; f.ZIndex=zidx or 6; f.Visible=false; f.Parent=mapCanvas; Instance.new("UICorner",f).CornerRadius=UDim.new(0.5,0)
+    local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(0,60,0,14); lbl.Position=UDim2.new(0,12,0,-2); lbl.BackgroundTransparency=1; lbl.Text=txt; lbl.TextColor3=col; lbl.TextSize=8; lbl.Font=Enum.Font.GothamBold; lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.ZIndex=zidx or 6; lbl.Parent=f
     return f,lbl
 end
 makeToggle(pageMap,"Show Exits","ShowExits",EXIT_C)
 makeToggle(pageMap,"Show Last Death","ShowDeathMark",DEATH_C)
 makeToggle(pageMap,"Show Quest Items","ShowQuestItems",QUEST_C)
 
+
+-- ============================================================
+-- TAB CONTENT: PLAYERS
+-- ============================================================
 local function buildPlayersPage()
     local listFrame=Instance.new("Frame"); listFrame.Size=UDim2.new(1,0,0,0); listFrame.BackgroundTransparency=1; listFrame.BorderSizePixel=0; listFrame.ZIndex=3; listFrame.AutomaticSize=Enum.AutomaticSize.Y; listFrame.Parent=pagePlayers
     local ll=Instance.new("UIListLayout"); ll.Padding=UDim.new(0,4); ll.HorizontalAlignment=Enum.HorizontalAlignment.Center; ll.Parent=listFrame
@@ -610,12 +735,20 @@ local function buildPlayersPage()
 end
 buildPlayersPage()
 
+
+-- ============================================================
+-- TAB CONTENT: AIMBOT
+-- ============================================================
 makeSec(pageAimbot,"  Hold Key"); makeAimKeyRow(pageAimbot,"Activate Key")
 makeSec(pageAimbot,"  Target Part")
 local partCycleBtn=Instance.new("TextButton"); partCycleBtn.Size=UDim2.new(1,0,0,28); partCycleBtn.BackgroundColor3=DARKRED; partCycleBtn.BackgroundTransparency=0.2; partCycleBtn.BorderSizePixel=0; partCycleBtn.Text=Cfg.AimbotPart; partCycleBtn.TextColor3=Color3.fromRGB(220,220,220); partCycleBtn.TextSize=11; partCycleBtn.Font=Enum.Font.GothamBold; partCycleBtn.ZIndex=3; partCycleBtn.AutoButtonColor=false; partCycleBtn.Parent=pageAimbot; Instance.new("UICorner",partCycleBtn).CornerRadius=UDim.new(0,6)
 partCycleBtn.MouseButton1Click:Connect(function() partIndex=partIndex%#PARTS_CYCLE+1; Cfg.AimbotPart=PARTS_CYCLE[partIndex]; partCycleBtn.Text=Cfg.AimbotPart end)
 makeSec(pageAimbot,"  Settings"); makeSlider(pageAimbot,"FOV",20,400,120,function(v) Cfg.AimbotFOV=v end); makeSlider(pageAimbot,"Smooth",1,10,10,function(v) Cfg.AimbotSmooth=v end); makeToggle(pageAimbot,"FOV Circle","AimbotFOVCircle",Color3.fromRGB(255,100,100)); makeToggle(pageAimbot,"Trace Line","AimbotTraceLine",Color3.fromRGB(255,100,100))
 
+
+-- ============================================================
+-- TAB CONTENT: SETTINGS
+-- ============================================================
 makeSec(pageSet,"  Performance"); makeSlider(pageSet,"Refresh Rate",10,144,60,function(v) Cfg.RefreshRate=v end)
 makeSec(pageSet,"  Color")
 local colorPalette={Color3.fromRGB(210,25,25),Color3.fromRGB(255,80,30),Color3.fromRGB(255,180,0),Color3.fromRGB(50,200,50),Color3.fromRGB(0,180,255),Color3.fromRGB(80,80,255),Color3.fromRGB(180,50,255),Color3.fromRGB(255,50,180),Color3.fromRGB(255,255,255),Color3.fromRGB(150,150,150),Color3.fromRGB(80,200,180),Color3.fromRGB(255,220,100),Color3.fromRGB(100,255,200),Color3.fromRGB(255,120,120),Color3.fromRGB(120,120,255),Color3.fromRGB(255,160,80),Color3.fromRGB(0,255,128),Color3.fromRGB(200,100,50)}
@@ -639,17 +772,29 @@ makeSec(pageSet,"  Danger"); makeBtn(pageSet,"Unload",Color3.fromRGB(70,8,8),fun
     if radarGui then radarGui:Destroy() end; if hudGui then hudGui:Destroy() end; if sysGui then sysGui:Destroy() end; if popupGui then popupGui:Destroy() end; mainGui:Destroy()
 end)
 
+
+-- ============================================================
+-- TAB BUTTONS
+-- ============================================================
 local btnESP =makeTabBtn("👁",pageESP,layESP)
 local btnMap =makeTabBtn("🗺",pageMap,layMap)
 local btnPlrs=makeTabBtn("👥",pagePlayers,layPlayers)
 local btnAim =makeTabBtn("🎯",pageAimbot,layAimbot)
 local btnSet =makeTabBtn("⚙",pageSet,laySet)
 
+
+-- ============================================================
+-- OPEN / CLOSE PANEL
+-- ============================================================
 local firstOpen=true
 local function open() isOpen=true; toggleBtn.Text="CLOSE"; tabBar.Visible=true; if not activeTab then switchTab(pageESP,btnESP,layESP) end; panel.Size=UDim2.new(0,W,0,getOpenHeight()); if firstOpen then firstOpen=false; menuOpenSound:Play() end end
 local function close() isOpen=false; toggleBtn.Text="OPEN"; tabBar.Visible=false; pageESP.Visible=false; pageMap.Visible=false; pagePlayers.Visible=false; pageAimbot.Visible=false; pageSet.Visible=false; pinFrame.Visible=false; aimPinFrame.Visible=false; panel.Size=UDim2.new(0,W,0,TITLE_H) end
 toggleBtn.MouseButton1Click:Connect(function() if isOpen then close() else open() end end)
 
+
+-- ============================================================
+-- RADAR
+-- ============================================================
 radarGui=Instance.new("ScreenGui"); radarGui.Name="XFentRadar"; radarGui.ResetOnSpawn=false; radarGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; radarGui.DisplayOrder=9; radarGui.Enabled=false; radarGui.Parent=LocalPlayer.PlayerGui
 local RS=Cfg.RadarSize
 local radarOuter=Instance.new("Frame"); radarOuter.Size=UDim2.new(0,RS,0,RS); radarOuter.Position=UDim2.new(1,-RS-16,1,-RS-16); radarOuter.BackgroundColor3=Color3.fromRGB(5,5,5); radarOuter.BackgroundTransparency=0.4; radarOuter.BorderSizePixel=0; radarOuter.Visible=false; radarOuter.Parent=radarGui; Instance.new("UICorner",radarOuter).CornerRadius=UDim.new(0.5,0)
@@ -682,8 +827,16 @@ local function updateRadar()
     end
 end
 
+
+-- ============================================================
+-- HUD GUI
+-- ============================================================
 hudGui=Instance.new("ScreenGui"); hudGui.Name="XFentHUD"; hudGui.ResetOnSpawn=false; hudGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; hudGui.DisplayOrder=8; hudGui.Enabled=false; hudGui.Parent=LocalPlayer.PlayerGui
 
+
+-- ============================================================
+-- TEAMMATE HUD CARDS
+-- ============================================================
 local tmCards={}
 for i=1,MAX_TEAMMATES do
     local off=-(130+60+(i*40))
@@ -697,14 +850,20 @@ for i=1,MAX_TEAMMATES do
     tmCards[i]={card=tmCard,thumb=tmThumb,name=tmName,hpFill=tmHPFill,weapon=tmWeapon}
 end
 
+
+-- ============================================================
+-- MINI HUD CARD
+-- ============================================================
 local HUD_W=210; local HUD_H=115; local VP_SIZE=100
-local hudCard=Instance.new("Frame"); hudCard.Size=UDim2.new(0,HUD_W,0,HUD_H); hudCard.Position=UDim2.new(0,-HUD_W-10,1,-(HUD_H+16)); hudCard.BackgroundColor3=BLACK; hudCard.BackgroundTransparency=0.3; hudCard.BorderSizePixel=0; hudCard.ClipsDescendants=true; hudCard.Parent=hudGui
-task.delay(1.5,function() TweenService:Create(hudCard,TweenInfo.new(0.6,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Position=UDim2.new(0,16,1,-(HUD_H+16))}):Play() end)
+local hudCard=Instance.new("Frame"); hudCard.Size=UDim2.new(0,HUD_W,0,HUD_H); hudCard.Position=UDim2.new(0,16,1,-(HUD_H+16)); hudCard.BackgroundColor3=BLACK; hudCard.BackgroundTransparency=0.3; hudCard.BorderSizePixel=0; hudCard.ClipsDescendants=true; hudCard.Parent=hudGui
 Instance.new("UICorner",hudCard).CornerRadius=UDim.new(0,8)
 local hudStroke=Instance.new("UIStroke"); hudStroke.Color=RED; hudStroke.Thickness=1.2; hudStroke.Parent=hudCard; table.insert(colorTargets,{obj=hudStroke,prop="Color"})
 local hudAccent=Instance.new("Frame"); hudAccent.Size=UDim2.new(1,0,0,3); hudAccent.BackgroundColor3=RED; hudAccent.BorderSizePixel=0; hudAccent.ZIndex=3; hudAccent.Parent=hudCard; Instance.new("UICorner",hudAccent).CornerRadius=UDim.new(0,8); table.insert(colorTargets,{obj=hudAccent,prop="BackgroundColor3"})
 local waveContainer=Instance.new("Frame"); waveContainer.Size=UDim2.new(1,0,1,0); waveContainer.BackgroundTransparency=1; waveContainer.BorderSizePixel=0; waveContainer.ZIndex=1; waveContainer.ClipsDescendants=true; waveContainer.Parent=hudCard
 
+-- ============================================================
+-- HUD WAVE BACKGROUND
+-- ============================================================
 local WAVE_BARS=20; local waveBars={}
 for i=1,WAVE_BARS do
     local bar=Instance.new("Frame"); bar.Size=UDim2.new(1/WAVE_BARS,0,0.3,0); bar.Position=UDim2.new((i-1)/WAVE_BARS,0,0.7,0); bar.BackgroundColor3=RED; bar.BackgroundTransparency=0.88; bar.BorderSizePixel=0; bar.ZIndex=1; bar.Parent=waveContainer; table.insert(colorTargets,{obj=bar,prop="BackgroundColor3"}); waveBars[i]=bar
@@ -715,6 +874,10 @@ Instance.new("UICorner",vpFrame).CornerRadius=UDim.new(0,5)
 local vpStroke=Instance.new("UIStroke"); vpStroke.Color=RED; vpStroke.Thickness=1.5; vpStroke.Parent=vpFrame; table.insert(colorTargets,{obj=vpStroke,prop="Color"})
 local vpCam=Instance.new("Camera"); vpCam.FieldOfView=40; vpFrame.CurrentCamera=vpCam
 
+
+-- ============================================================
+-- MINI HUD VIEWPORT  (character preview)
+-- ============================================================
 task.spawn(function()
     task.wait(1.2)
     local function setupVP(char)
@@ -732,8 +895,8 @@ task.spawn(function()
             if cr then
                 cr.Anchored=true
                 cr.CFrame=CFrame.new(0,0,0)
-
-                vpCam.CFrame=CFrame.new(Vector3.new(0,1.2,-9),Vector3.new(0,1.2,0))
+                -- Camera sits BEHIND character (negative Z) looking toward positive Z = sees front face
+                vpCam.CFrame=CFrame.new(Vector3.new(0,2.5,-8),Vector3.new(0,2.5,0))
             end
 
             RunService.Heartbeat:Connect(function()
@@ -759,6 +922,10 @@ task.spawn(function()
     LocalPlayer.CharacterAdded:Connect(function(char) task.wait(1); setupVP(char) end)
 end)
 
+
+-- ============================================================
+-- HUD INFO LABELS
+-- ============================================================
 local IX=VP_SIZE+10
 local hudName=Instance.new("TextLabel"); hudName.Size=UDim2.new(1,-(IX+6),0,14); hudName.Position=UDim2.new(0,IX,0,8); hudName.BackgroundTransparency=1; hudName.Text=""; hudName.TextColor3=RED; hudName.TextSize=11; hudName.Font=Enum.Font.GothamBold; hudName.TextXAlignment=Enum.TextXAlignment.Left; hudName.ZIndex=3; hudName.Parent=hudCard; table.insert(colorTargets,{obj=hudName,prop="TextColor3"})
 local hudHP=Instance.new("Frame"); hudHP.Size=UDim2.new(1,-(IX+6),0,4); hudHP.Position=UDim2.new(0,IX,0,26); hudHP.BackgroundColor3=Color3.fromRGB(30,30,30); hudHP.BorderSizePixel=0; hudHP.ZIndex=3; hudHP.Parent=hudCard; Instance.new("UICorner",hudHP).CornerRadius=UDim.new(0.5,0)
@@ -767,6 +934,10 @@ local hudX=Instance.new("TextLabel"); hudX.Size=UDim2.new(1,-(IX+6),0,12); hudX.
 local hudY=Instance.new("TextLabel"); hudY.Size=UDim2.new(1,-(IX+6),0,12); hudY.Position=UDim2.new(0,IX,0,50); hudY.BackgroundTransparency=1; hudY.Text=""; hudY.TextColor3=Color3.fromRGB(100,220,100); hudY.TextSize=9; hudY.Font=Enum.Font.GothamMedium; hudY.TextXAlignment=Enum.TextXAlignment.Left; hudY.ZIndex=3; hudY.Parent=hudCard
 local hudZ=Instance.new("TextLabel"); hudZ.Size=UDim2.new(1,-(IX+6),0,12); hudZ.Position=UDim2.new(0,IX,0,64); hudZ.BackgroundTransparency=1; hudZ.Text=""; hudZ.TextColor3=Color3.fromRGB(255,100,100); hudZ.TextSize=9; hudZ.Font=Enum.Font.GothamMedium; hudZ.TextXAlignment=Enum.TextXAlignment.Left; hudZ.ZIndex=3; hudZ.Parent=hudCard
 
+
+-- ============================================================
+-- DAMAGE NUMBER FLOAT
+-- ============================================================
 local function spawnDmgNumber(dmg)
     task.spawn(function()
         local lbl=Instance.new("TextLabel"); lbl.Size=UDim2.new(0,60,0,20); lbl.AnchorPoint=Vector2.new(0.5,0.5); lbl.Position=UDim2.new(0.5,0,0.5,0); lbl.BackgroundTransparency=1; lbl.Text="-"..math.floor(dmg); lbl.TextColor3=Color3.fromRGB(255,80,80); lbl.TextSize=16; lbl.Font=Enum.Font.GothamBold; lbl.ZIndex=10; lbl.TextTransparency=0; lbl.Parent=hudCard
@@ -777,6 +948,9 @@ end
 
 local hudAnimDone=false
 
+-- ============================================================
+-- HUD INTRO ANIMATION
+-- ============================================================
 local function typewrite(lbl,fullText,delay,cb) lbl.Text=""; task.spawn(function() for i=1,#fullText do if Unloaded then return end; lbl.Text=string.sub(fullText,1,i); task.wait(delay) end; if cb then cb() end end) end
 local function playHUDIntro()
     hudName.Text=""; hudX.Text=""; hudY.Text=""; hudZ.Text=""
@@ -787,6 +961,10 @@ local function playHUDIntro()
 end
 task.spawn(function() task.wait(1.4); playHUDIntro() end)
 
+
+-- ============================================================
+-- LOW HEALTH POPUP
+-- ============================================================
 popupGui=Instance.new("ScreenGui"); popupGui.Name="XFentPopup"; popupGui.ResetOnSpawn=false; popupGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; popupGui.DisplayOrder=20; popupGui.Enabled=false; popupGui.Parent=LocalPlayer.PlayerGui
 local popupCard=Instance.new("Frame"); popupCard.Size=UDim2.new(0,220,0,40); popupCard.Position=UDim2.new(0.5,-110,0,55); popupCard.BackgroundColor3=Color3.fromRGB(10,4,4); popupCard.BackgroundTransparency=0.15; popupCard.BorderSizePixel=0; popupCard.ZIndex=10; popupCard.Visible=false; popupCard.Parent=popupGui
 Instance.new("UICorner",popupCard).CornerRadius=UDim.new(0,10)
@@ -818,9 +996,17 @@ local function showPopup()
     end)
 end
 
+
+-- ============================================================
+-- FOV CIRCLE
+-- ============================================================
 local fovCircle=nil
 local function ensureFOV() if not fovCircle then fovCircle=Drawing.new("Circle"); fovCircle.Filled=false; fovCircle.Color=Color3.fromRGB(255,255,255); fovCircle.Transparency=0.6; fovCircle.Thickness=1 end end
 
+
+-- ============================================================
+-- SYSTEM BAR
+-- ============================================================
 sysGui=Instance.new("ScreenGui"); sysGui.Name="XFentSys"; sysGui.ResetOnSpawn=false; sysGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; sysGui.DisplayOrder=7; sysGui.Enabled=false; sysGui.Parent=LocalPlayer.PlayerGui
 local sysBar=Instance.new("Frame"); sysBar.Size=UDim2.new(0,440,0,26); sysBar.Position=UDim2.new(0.5,-220,0.87,0); sysBar.BackgroundColor3=BLACK; sysBar.BackgroundTransparency=0.35; sysBar.BorderSizePixel=0; sysBar.Parent=sysGui
 Instance.new("UICorner",sysBar).CornerRadius=UDim.new(0,7)
@@ -833,6 +1019,10 @@ local sysTime  =makeSysLbl(Color3.fromRGB(200,200,200),80)
 local sysDate  =makeSysLbl(Color3.fromRGB(140,140,140),88)
 local sysPlayers=makeSysLbl(Color3.fromRGB(150,200,255),44)
 
+
+-- ============================================================
+-- DRAGGABLE TITLE BAR
+-- ============================================================
 do
     local dragging,dragStart,startPos=false,nil,nil
     titleBar.InputBegan:Connect(function(inp) if inp.UserInputType==Enum.UserInputType.MouseButton1 or inp.UserInputType==Enum.UserInputType.Touch then dragging=true; dragStart=inp.Position; startPos=panel.Position end end)
@@ -842,10 +1032,18 @@ end
 
 UserInputService.InputBegan:Connect(function(inp,gp) if gp then return end; if inp.KeyCode==Cfg.Hotkeys.ToggleMenu then MenuVisible=not MenuVisible; panel.Visible=MenuVisible end end)
 
+
+-- ============================================================
+-- PLAYER EVENTS
+-- ============================================================
 Players.PlayerAdded:Connect(function(p) if Cfg.Enabled then createESP(p) end; p.CharacterAdded:Connect(function() task.wait(0.5); if Cfg.Enabled then removeESP(p); createESP(p) end end) end)
 Players.PlayerRemoving:Connect(function(p) removeESP(p); if radarDots[p.Name] then radarDots[p.Name]:Destroy(); radarDots[p.Name]=nil end; for i,th in ipairs(teammateHUDs) do if th.player==p then if th.nl then pcall(function() th.nl:Remove() end) end; if th.hl then pcall(function() th.hl:Remove() end) end; table.remove(teammateHUDs,i); break end end end)
 for _,p in ipairs(Players:GetPlayers()) do if p~=LocalPlayer then createESP(p); p.CharacterAdded:Connect(function() task.wait(0.5); if Cfg.Enabled then removeESP(p); createESP(p) end end) end end
 
+
+-- ============================================================
+-- DEATH HOOK
+-- ============================================================
 task.spawn(function()
     local function hookChar(char) local hum=char:WaitForChild("Humanoid",10); if hum then hum.Died:Connect(function() local root=char:FindFirstChild("HumanoidRootPart"); if root then lastDeathPos=root.Position end end) end end
     if LocalPlayer.Character then hookChar(LocalPlayer.Character) end
@@ -856,6 +1054,10 @@ local fpsBuffer={}; local FPS=0; local lastSysUpdate=0; local lastHUDUpdate=0; l
 
 task.spawn(function() while not Unloaded do task.wait(0.05); RainbowColor=Color3.fromHSV(tick()*Cfg.RainbowSpeed%1,1,1); stroke.Color=Cfg.Rainbow and RainbowColor or RED end end)
 
+
+-- ============================================================
+-- RENDER LOOP
+-- ============================================================
 RunService.RenderStepped:Connect(function(dt)
     if Unloaded then return end
     local now=tick()
@@ -921,30 +1123,7 @@ RunService.RenderStepped:Connect(function(dt)
         hudHPFill.Size=UDim2.new(hpPct,0,1,0); hudHPFill.BackgroundColor3=Color3.fromRGB(math.floor(255*(1-hpPct)),math.floor(255*hpPct),50)
         for i=1,MAX_TEAMMATES do
             local th=teammateHUDs[i]; local tc=tmCards[i]
-            if th and tc then
-                local p=th.player
-                local pchar=p and p.Character
-                local phum=pchar and pchar:FindFirstChildOfClass("Humanoid")
-                if p and pchar and phum and phum.Health>0 then
-                    if not tc.card.Visible then
-                        tc.card.Visible=true
-                        tc.card.BackgroundTransparency=1
-                        TweenService:Create(tc.card,TweenInfo.new(0.35,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundTransparency=0.35}):Play()
-                    end
-                    tc.thumb.Image="rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=48&h=48"
-                    tc.name.Text=p.DisplayName
-                    local ppct=math.clamp(phum.Health/math.max(phum.MaxHealth,1),0,1)
-                    tc.hpFill.Size=UDim2.new(ppct,0,1,0)
-                    tc.hpFill.BackgroundColor3=Color3.fromRGB(math.floor(255*(1-ppct)),math.floor(255*ppct),50)
-                    local pwn=getWeaponName(pchar)
-                    tc.weapon.Text=pwn or ""
-                    tc.weapon.TextColor3=pwn and Color3.fromRGB(255,190,60) or Color3.fromRGB(80,80,80)
-                elseif p and (not pchar or (phum and phum.Health<=0)) then
-                    tc.card.Visible=false
-                    TweenService:Create(tc.card,TweenInfo.new(0.4,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundTransparency=1}):Play()
-                else
-                    tc.card.Visible=false
-                end
+            if th and tc then local p=th.player; if p and p.Character then local phum=p.Character:FindFirstChildOfClass("Humanoid"); if phum and phum.Health>0 then tc.card.Visible=true; tc.thumb.Image="rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=48&h=48"; tc.name.Text=p.DisplayName; local ppct=math.clamp(phum.Health/math.max(phum.MaxHealth,1),0,1); tc.hpFill.Size=UDim2.new(ppct,0,1,0); tc.hpFill.BackgroundColor3=Color3.fromRGB(math.floor(255*(1-ppct)),math.floor(255*ppct),50); local pwn=getWeaponName(p.Character); tc.weapon.Text=pwn or ""; tc.weapon.TextColor3=pwn and Color3.fromRGB(255,190,60) or Color3.fromRGB(80,80,80) else tc.card.Visible=false end else tc.card.Visible=false end
             elseif tc then tc.card.Visible=false end
         end
     end
@@ -953,34 +1132,18 @@ RunService.RenderStepped:Connect(function(dt)
         lastMapUpdate=now
         local lr=char and char:FindFirstChild("HumanoidRootPart")
         if lr then
-            local camLook=Camera.CFrame.LookVector
-            local camYaw=math.atan2(camLook.X,camLook.Z)
-            local camDeg=math.deg(camYaw)
+            local camLook=Camera.CFrame.LookVector; local camAngle=math.deg(math.atan2(camLook.X,camLook.Z))
             local dirs={{"N",0},{"E",90},{"S",180},{"W",270}}; local cl,cd="N",999
-            for _,d in ipairs(dirs) do local diff=((d[2]-camDeg)%360); if diff>180 then diff=diff-360 end; if math.abs(diff)<cd then cd=math.abs(diff); cl=d[1] end end
-            headingLbl.Text=string.format("%s  %d°",cl,math.floor((camDeg+360)%360))
-            local rotAngle=0
-            if Cfg.RadarRotate then rotAngle=-camYaw+math.pi end
-            local mapR=MAP_HALF-14
-            local compassColors={N=Color3.fromRGB(255,60,60),S=Color3.fromRGB(200,200,200),E=Color3.fromRGB(200,200,200),W=Color3.fromRGB(200,200,200)}
-            local dirAngles={N=0,E=math.pi/2,S=math.pi,W=-math.pi/2}
-            for dirName,lbl in pairs(compassLabels) do
-                local baseAngle=dirAngles[dirName]
-                local screenAngle=baseAngle+rotAngle
-                local ex=math.sin(screenAngle)*mapR; local ey=-math.cos(screenAngle)*mapR
-                lbl.Position=UDim2.new(0.5,ex-8,0.5,ey-7)
-                lbl.TextColor3=dirName=="N" and Color3.fromRGB(255,60,60) or Color3.fromRGB(160,160,160)
-            end
-            if mapArrow then
-                mapArrow.Rotation=math.deg(-rotAngle)
-            end
-            local half=MAP_HALF-14
+            for _,d in ipairs(dirs) do local diff=((d[2]-camAngle)%360); if diff>180 then diff=diff-360 end; if math.abs(diff)<cd then cd=math.abs(diff); cl=d[1] end end
+            compassLbl.Text="Facing "..cl.."  "..string.format("%.0f",camAngle).."deg"
+            local half=MAP_SIZE/2-10
+            local angle=0; if Cfg.RadarRotate then angle=-math.atan2(Camera.CFrame.LookVector.Z,Camera.CFrame.LookVector.X)+math.pi/2 end
             local function worldToMapRot(pos)
                 local rel=pos-lr.Position
-                local rx=rel.X*math.cos(rotAngle)-rel.Z*math.sin(rotAngle)
-                local rz=rel.X*math.sin(rotAngle)+rel.Z*math.cos(rotAngle)
-                local mx=math.clamp(rx*(half/MAP_RANGE),-half,half)
-                local mz=math.clamp(rz*(half/MAP_RANGE),-half,half)
+                local rx=rel.X*math.cos(angle)-rel.Z*math.sin(angle); local rz=rel.X*math.sin(angle)+rel.Z*math.cos(angle)
+                local mx=rx*(half/MAP_RANGE); local mz=rz*(half/MAP_RANGE)
+                local d2=math.sqrt(mx*mx+mz*mz)
+                if d2>half then mx=mx/d2*half; mz=mz/d2*half end
                 return mx,mz
             end
 
