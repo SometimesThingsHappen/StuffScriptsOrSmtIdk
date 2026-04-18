@@ -87,7 +87,7 @@ introStroke.Color=Color3.fromRGB(180,18,18); introStroke.Thickness=1; introStrok
 
 local accent=Instance.new("Frame")
 accent.Size=UDim2.new(0,3,1,-18); accent.Position=UDim2.new(0,8,0,9)
-accent.BackgroundColor3=THEME.RED; accent.BorderSizePixel=0; accent.ZIndex=11; accent.Parent=introCard
+accent.BackgroundColor3=Color3.fromRGB(210,25,25); accent.BorderSizePixel=0; accent.ZIndex=11; accent.Parent=introCard
 Instance.new("UICorner",accent).CornerRadius=UDim.new(0,2)
 
 local leftPlate=Instance.new("Frame")
@@ -8172,5 +8172,6 @@ end
 if scheduleOverlayExtrasUISync then
     scheduleOverlayExtrasUISync()
 end
+
 
 
